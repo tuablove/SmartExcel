@@ -10,7 +10,7 @@ import org.apache.poi.ss.usermodel.Cell;
 public class IsPassValueConverter implements IWriteValueConverter {
     @Override
     public Object convert(Cell cell, Object cellValue, Class<?> valueType) {
-        if (valueType.isAssignableFrom(Boolean.class)) {
+        if (valueType != null && valueType.isAssignableFrom(Boolean.class)) {
             return (Boolean) cellValue ? "通过" : "不通过";
         }
         return cellValue;

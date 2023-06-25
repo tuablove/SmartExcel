@@ -59,6 +59,9 @@ public class ExcelWriteDataFieldDefinitionCreator {
             for (DynamicColumn dynamicColumn : writeDataBase) {
                 WriteDataFieldDefinition dataField = new WriteDataFieldDefinition();
                 dataField.copyFrom(dynamicColumn);
+                if (dynamicColumn.getOrder() == null) {
+                    dataField.setOrder(dataFields.stream().map(WriteDataFieldDefinition::getOrder).max(Integer::compare).get() + 1);
+                }
                 if (dynamicColumn.getWriteValueConverter() != null && !dynamicColumn.getWriteValueConverter().isInterface() && !Modifier.isAbstract(dynamicColumn.getWriteValueConverter().getModifiers())) {
                     dataField.setWriteValueConverter(dynamicColumn.getWriteValueConverter().newInstance());
                 }

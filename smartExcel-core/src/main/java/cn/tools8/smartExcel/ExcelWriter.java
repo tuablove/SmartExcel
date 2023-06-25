@@ -59,13 +59,13 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
             }
             int maxTitleRowCount = calculateMaxTitleRowCount(mainDataFields, childDataFields);
             Sheet sheet = workbook.createSheet(config.getDefaultSheetName());
-            createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet);
+            int maxChildrenCount = createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet);
             int maxRows = config.getExcelType().getConfig().getMaxRows() - maxTitleRowCount;
             int maxSheetCount = dataList.size() / maxRows + 1;
             for (int i = 0; i < maxSheetCount; i++) {
                 if (i > 0) {
                     sheet = workbook.createSheet(config.getDefaultSheetName() + i);
-                    createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet);
+                    maxChildrenCount = createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet);
                 }
                 int pageSize = Math.min(dataList.size() - i * maxRows, maxRows);
                 for (int rowIndex = 0; rowIndex < pageSize; rowIndex++) {
@@ -77,14 +77,20 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
                         Object originValue = dataBase.getFieldValue(dataField.getKey());
                         setCellValueStyle(dataBase, dataField, cell, originValue);
                     }
-                    if (dataBase.getWriteDateChildren() != null && dataBase.getWriteDateChildren().size() > 0) {
-                        for (int count = 0; count < dataBase.getWriteDateChildren().size(); count++) {
-                            for (int column = 0; column < childDataFields.size(); column++) {
-                                WriteDataFieldDefinition dataField = childDataFields.get(column);
-                                Cell cell = row.createCell(column + mainDataFields.size() + count * childDataFields.size());
+                    for (int count = 0; count < maxChildrenCount; count++) {
+                        for (int column = 0; column < childDataFields.size(); column++) {
+                            WriteDataFieldDefinition dataField = childDataFields.get(column);
+                            Cell cell = row.createCell(column + mainDataFields.size() + count * childDataFields.size());
+                            int size = dataBase.getWriteDateChildren() == null ? 0 : dataBase.getWriteDateChildren().size();
+                            if (count < size) {
                                 WriteDataBase subDataBase = dataBase.getWriteDateChildren().get(count);
-                                Object originValue = subDataBase.getFieldValue(dataField.getKey());
+                                Object originValue = null;
+                                if (subDataBase != null) {
+                                    originValue = subDataBase.getFieldValue(dataField.getKey());
+                                }
                                 setCellValueStyle(subDataBase, dataField, cell, originValue);
+                            } else {
+                                cell.setCellStyle(genericCellStyleManager.getCellStyle(GenericStyleTypeEnum.CONTENT.getType()));
                             }
                         }
                     }
@@ -112,7 +118,7 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
     private void setCellValueStyle(WriteDataBase dataBase, WriteDataFieldDefinition dataField, Cell cell, Object originValue) {
         Object cellValue = null;
         if (dataField.getWriteValueConverter() != null) {
-            cellValue = dataField.getWriteValueConverter().convert(cell, originValue, originValue.getClass());
+            cellValue = dataField.getWriteValueConverter().convert(cell, originValue, originValue == null ? null : originValue.getClass());
         } else {
             cellValue = originValue;
         }
@@ -131,7 +137,7 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
             }
         }
         if (cellStyle == null) {
-            if (cellValue.getClass().isAssignableFrom(Date.class)) {
+            if (cellValue != null && cellValue.getClass().isAssignableFrom(Date.class)) {
                 cellStyle = generateDataFormatCellStyle("yyyy-MM-dd HH:mm:ss", defaultCellStyle);
             }
             if (cellStyle == null) {
@@ -180,8 +186,9 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
      * @param childDataFields
      * @param maxTitleRowCount
      * @param sheet
+     * @return
      */
-    private void createSheetTitle(List<? extends WriteDataBase> dataList, List<WriteDataFieldDefinition> mainDataFields, List<WriteDataFieldDefinition> childDataFields, int maxTitleRowCount, Sheet sheet) {
+    private int createSheetTitle(List<? extends WriteDataBase> dataList, List<WriteDataFieldDefinition> mainDataFields, List<WriteDataFieldDefinition> childDataFields, int maxTitleRowCount, Sheet sheet) {
         for (int i = 0; i < maxTitleRowCount; i++) {
             sheet.createRow(i);
         }
@@ -209,7 +216,7 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
         int maxChildrenCount = 0;
         if (childDataFields.size() > 0) {
             for (WriteDataBase dataBase : dataList) {
-                maxChildrenCount = Math.max(maxChildrenCount, dataBase.getWriteDateChildren().size());
+                maxChildrenCount = Math.max(maxChildrenCount, dataBase.getWriteDateChildren() == null ? 0 : dataBase.getWriteDateChildren().size());
             }
             for (int count = 0; count < maxChildrenCount; count++) {
                 expressionManager.put("writeDateChildrenIndex", count + 1);
@@ -238,6 +245,7 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
         }
         int lastColumn = mainDataFields.size() + maxChildrenCount * childDataFields.size() - 1;
         ExcelMergeUtils.mergeRange(sheet, new CellRangeAddress(0, maxTitleRowCount - 1, 0, lastColumn));
+        return maxChildrenCount;
 //        for (int i = 0; i <= lastColumn; i++) {
 //            sheet.autoSizeColumn(0, false);
 //        }

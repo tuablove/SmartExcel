@@ -4,10 +4,12 @@ import cn.tools8.smartExcel.entity.definition.ExcelStyleDefinition;
 import cn.tools8.smartExcel.handler.IWriteValueConverter;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * 动态列
+ *
  * @author tuaobin 2023/6/19$ 15:44$
  */
 public class DynamicColumn implements Serializable {
@@ -34,7 +36,7 @@ public class DynamicColumn implements Serializable {
     /**
      * 数据转换处理类型
      */
-    private Class<? extends IWriteValueConverter>  writeValueConverter;
+    private Class<? extends IWriteValueConverter> writeValueConverter;
     /**
      * 单元格样式
      */
@@ -49,6 +51,10 @@ public class DynamicColumn implements Serializable {
 
     public void setTitleNames(List<String> titleNames) {
         this.titleNames = titleNames;
+    }
+
+    public void setTitleNames(String... titleNames) {
+        this.titleNames = Arrays.asList(titleNames);
     }
 
     public Integer getOrder() {
@@ -97,5 +103,21 @@ public class DynamicColumn implements Serializable {
 
     public void setValueType(Class<?> valueType) {
         this.valueType = valueType;
+    }
+
+    /**
+     * 深拷贝
+     * @return
+     */
+    public DynamicColumn deepClone() {
+        DynamicColumn other = new DynamicColumn();
+        other.setOrder(this.getOrder());
+        other.setKey(this.getKey());
+        other.setValue(this.getValue());
+        other.setTitleNames(this.getTitleNames());
+        other.setValueType(this.getValueType());
+        other.setWriteValueConverter(this.getWriteValueConverter());
+        other.setStyle(this.getStyle());
+        return other;
     }
 }
