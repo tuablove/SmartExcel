@@ -2,6 +2,9 @@ package cn.tools8.smartExcel.entity;
 
 import cn.tools8.smartExcel.annotaion.ExcelExport;
 import cn.tools8.smartExcel.annotaion.ExcelImport;
+import cn.tools8.smartExcel.annotaion.ExcelStyle;
+import cn.tools8.smartExcel.handler.IsPassCellStyleHandler;
+import cn.tools8.smartExcel.handler.IsPassValueConverter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -11,13 +14,14 @@ import java.util.Date;
  * @author tuaobin 2023/6/15$ 14:57$
  */
 public class StudentScoreDto extends WriteDataBase implements Serializable {
-    @ExcelExport(names = {"学费统计报表","学成科绩${writeDateChildrenIndex}","科目"})
+    @ExcelExport(names = {"学费统计报表", "学成科绩${writeDateChildrenIndex}", "科目"})
     private String subject;
-    @ExcelExport(names = {"学费统计报表","学成科绩${writeDateChildrenIndex}","得分"})
+    @ExcelExport(names = {"学费统计报表", "学成科绩${writeDateChildrenIndex}", "得分"})
     private BigDecimal score;
-    @ExcelExport(names = {"学费统计报表","学成科绩${writeDateChildrenIndex}","级别"})
+    @ExcelExport(names = {"学费统计报表", "学成科绩${writeDateChildrenIndex}", "级别"})
     private String level;
-    @ExcelExport(names = {"学费统计报表","学成科绩${writeDateChildrenIndex}","是否通过"})
+    @ExcelExport(names = {"学费统计报表", "学成科绩${writeDateChildrenIndex}", "是否通过"}, converter = IsPassValueConverter.class)
+    @ExcelStyle(cellStyleHandler = IsPassCellStyleHandler.class)
     private Boolean isPass;
 
     public StudentScoreDto() {

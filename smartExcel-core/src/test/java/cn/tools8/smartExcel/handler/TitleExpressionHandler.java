@@ -1,0 +1,13 @@
+package cn.tools8.smartExcel.handler;
+
+import cn.tools8.smartExcel.interfaces.IExpressionCreator;
+
+/**
+ * @author tuaobin 2023/6/25$ 14:44$
+ */
+public class TitleExpressionHandler implements IWriteTitleExpressionHandler{
+    @Override
+    public void onCreating(IExpressionCreator creator) {
+        creator.put("sno","论文编号");
+    }
+}

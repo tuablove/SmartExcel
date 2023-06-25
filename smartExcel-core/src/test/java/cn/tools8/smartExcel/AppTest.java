@@ -7,6 +7,7 @@ import cn.tools8.smartExcel.config.ExcelReaderConfigBuilder;
 import cn.tools8.smartExcel.config.ExcelWriteConfig;
 import cn.tools8.smartExcel.entity.GradeFreeDto;
 import cn.tools8.smartExcel.entity.StudentScoreDto;
+import cn.tools8.smartExcel.handler.TitleExpressionHandler;
 import org.junit.Test;
 
 import java.io.FileInputStream;
@@ -46,7 +47,7 @@ public class AppTest
         GradeFreeDto item = new GradeFreeDto(1001,"学生甲","好学生",BigDecimal.valueOf(10000),BigDecimal.valueOf(5000),125678L,"插班生",new Date());
         StudentScoreDto score1Dto=new StudentScoreDto("数学",BigDecimal.valueOf(90),"优秀",true);
         StudentScoreDto score2Dto=new StudentScoreDto("语文",BigDecimal.valueOf(60),"合格",true);
-        StudentScoreDto score3Dto=new StudentScoreDto("英语",BigDecimal.valueOf(76),"一般",true);
+        StudentScoreDto score3Dto=new StudentScoreDto("英语",BigDecimal.valueOf(56),"不合格",false);
         List<StudentScoreDto> scoreDtoList=new ArrayList<>();
         scoreDtoList.add(score1Dto);
         scoreDtoList.add(score2Dto);
@@ -56,6 +57,7 @@ public class AppTest
         ExcelWriteConfig config = new ExcelWriteConfig();
         config.setFilePath("/Users/tobin/java/git/p/SmartExcel/smartExcel-core/src/test/resources/班费收支明细表2.xlsx");
         config.setDefaultSheetName("班费收支明细表");
+        config.setTitleExpressionHandler(new TitleExpressionHandler());
         reader.write(dataList, config);
         System.out.println("completed");
     }

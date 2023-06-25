@@ -13,7 +13,7 @@ import java.util.Date;
  */
 public class GradeFreeDto extends WriteDataBase implements Serializable {
     @ExcelImport(names = {"学号","学生编号"})
-    @ExcelExport(names = {"学费统计报表","个人信息","学号"})
+    @ExcelExport(names = {"学费统计报表","个人信息","${sno}"})
 //    @ExcelExport(names = {"学费统计报表","学费统计报表","学费统计报表"})
     private Integer number;
     @ExcelExport(names = {"学费统计报表","个人信息","姓名"})

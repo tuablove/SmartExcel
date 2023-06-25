@@ -15,15 +15,27 @@ import java.util.List;
  */
 public class WriteDataFieldDefinition implements Serializable {
 
-
+    /**
+     * 标题
+     */
     private List<String> titleNames;
+    /**
+     * 关键字
+     */
     private String key;
+    /**
+     * 排序 1最小
+     */
     private Integer order;
-    private Object value;
-    private Class<? extends IWriteValueConverter> writeValueConverter;
-    private IWriteValueConverter writeValueConverterInstance;
+    /**
+     * 数值写入转换
+     */
+    private IWriteValueConverter  writeValueConverter;
     private Field field;
-    private Class<?> fieldType;
+    /**
+     * 列类型
+     */
+    private Class<?> valueType;
     //单元格样式定义
     private ExcelStyleDefinition styleDefinition;
 
@@ -35,12 +47,12 @@ public class WriteDataFieldDefinition implements Serializable {
         this.field = field;
     }
 
-    public Class<?> getFieldType() {
-        return fieldType;
+    public Class<?> getValueType() {
+        return valueType;
     }
 
-    public void setFieldType(Class<?> fieldType) {
-        this.fieldType = fieldType;
+    public void setValueType(Class<?> valueType) {
+        this.valueType = valueType;
     }
 
     public List<String> getTitleNames() {
@@ -67,28 +79,12 @@ public class WriteDataFieldDefinition implements Serializable {
         this.order = order;
     }
 
-    public Object getValue() {
-        return value;
-    }
-
-    public void setValue(Object value) {
-        this.value = value;
-    }
-
-    public Class<? extends IWriteValueConverter> getWriteValueConverter() {
+    public IWriteValueConverter getWriteValueConverter() {
         return writeValueConverter;
     }
 
-    public void setWriteValueConverter(Class<? extends IWriteValueConverter> writeValueConverter) {
+    public void setWriteValueConverter(IWriteValueConverter writeValueConverter) {
         this.writeValueConverter = writeValueConverter;
-    }
-
-    public IWriteValueConverter getWriteValueConverterInstance() {
-        return writeValueConverterInstance;
-    }
-
-    public void setWriteValueConverterInstance(IWriteValueConverter writeValueConverterInstance) {
-        this.writeValueConverterInstance = writeValueConverterInstance;
     }
 
     public ExcelStyleDefinition getStyleDefinition() {
@@ -99,12 +95,12 @@ public class WriteDataFieldDefinition implements Serializable {
         this.styleDefinition = styleDefinition;
     }
 
+
     public void copyFrom(DynamicColumn other) {
         this.titleNames = new ArrayList<>(other.getTitleNames());
         this.key = other.getKey();
         this.order = other.getOrder();
-        this.value = other.getValue();
-        this.writeValueConverter = other.getWriteValueConverter();
+        this.valueType = other.getValueType();
         this.styleDefinition = other.getStyle();
     }
 }

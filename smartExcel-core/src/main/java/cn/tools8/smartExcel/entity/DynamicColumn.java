@@ -28,6 +28,10 @@ public class DynamicColumn implements Serializable {
      */
     private Object value;
     /**
+     * 数值类型
+     */
+    private Class<?> valueType;
+    /**
      * 数据转换处理类型
      */
     private Class<? extends IWriteValueConverter>  writeValueConverter;
@@ -85,5 +89,13 @@ public class DynamicColumn implements Serializable {
 
     public void setStyle(ExcelStyleDefinition style) {
         this.style = style;
+    }
+
+    public Class<?> getValueType() {
+        return valueType;
+    }
+
+    public void setValueType(Class<?> valueType) {
+        this.valueType = valueType;
     }
 }
