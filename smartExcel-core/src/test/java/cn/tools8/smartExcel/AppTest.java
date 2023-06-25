@@ -1,21 +1,15 @@
 package cn.tools8.smartExcel;
 
-import static org.junit.Assert.assertTrue;
-
-import cn.tools8.smartExcel.config.ExcelReaderConfig;
-import cn.tools8.smartExcel.config.ExcelReaderConfigBuilder;
 import cn.tools8.smartExcel.config.ExcelWriteConfig;
 import cn.tools8.smartExcel.entity.DynamicColumn;
 import cn.tools8.smartExcel.entity.GradeFreeDto;
 import cn.tools8.smartExcel.entity.StudentScoreDto;
 import cn.tools8.smartExcel.entity.WriteDataBase;
 import cn.tools8.smartExcel.handler.TitleExpressionHandler;
-import org.apache.commons.compress.utils.Lists;
 import org.junit.Test;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,10 +45,16 @@ public class AppTest {
         dc1.setTitleNames("学费统计报表", "总分", "总分");
         dc1.setKey("totalScore");
         dc1.setValue("A");
+        DynamicColumn dc2 = new DynamicColumn();
+        dc2.setTitleNames("学费统计报表", "结论项", "结论项");
+        dc2.setKey("finalScore");
+        dc2.setValue("通过");
         item.add(dc1);
+        item.add(dc2);
         GradeFreeDto item1 = new GradeFreeDto(1002, "学生甲1", "好学生1", BigDecimal.valueOf(9000), BigDecimal.valueOf(3000), 125678L, "原班生", new Date());
         item.cloneDynamicColumnTo(item1);
         item1.setDynamicColumnValue("totalScore","B");
+        item1.setDynamicColumnValue("finalScore","不通过");
         StudentScoreDto score1Dto = new StudentScoreDto("数学", BigDecimal.valueOf(90), "优秀", true);
         StudentScoreDto score2Dto = new StudentScoreDto("语文", BigDecimal.valueOf(60), "合格", true);
         StudentScoreDto score3Dto = new StudentScoreDto("英语", BigDecimal.valueOf(56), "不合格", false);
