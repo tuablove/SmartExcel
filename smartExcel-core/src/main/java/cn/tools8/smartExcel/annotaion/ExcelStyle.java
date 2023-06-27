@@ -30,4 +30,10 @@ public @interface ExcelStyle {
      * @return
      */
     Class<? extends IWriteDataCellStyleHandler> cellStyleHandler() default IWriteDataCellStyleHandler.class;
+
+    /**
+     * 宽度自适应
+     * @return
+     */
+    boolean autoSizeColumn() default false;
 }

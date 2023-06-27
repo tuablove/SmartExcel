@@ -17,6 +17,11 @@ public class ExcelStyleDefinition {
      */
     private IWriteDataCellStyleHandler cellStyleHandler;
 
+    /**
+     * 宽度自适应
+     */
+    private boolean autoSizeColumn;
+
     public String getDataFormat() {
         return dataFormat;
     }
@@ -31,5 +36,13 @@ public class ExcelStyleDefinition {
 
     public void setCellStyleHandler(IWriteDataCellStyleHandler cellStyleHandler) {
         this.cellStyleHandler = cellStyleHandler;
+    }
+
+    public boolean isAutoSizeColumn() {
+        return autoSizeColumn;
+    }
+
+    public void setAutoSizeColumn(boolean autoSizeColumn) {
+        this.autoSizeColumn = autoSizeColumn;
     }
 }

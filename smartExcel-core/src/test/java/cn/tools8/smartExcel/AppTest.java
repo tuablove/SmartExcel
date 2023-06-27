@@ -57,7 +57,7 @@ public class AppTest {
         item1.setDynamicColumnValue("finalScore","不通过");
         StudentScoreDto score1Dto = new StudentScoreDto("数学", BigDecimal.valueOf(90), "优秀", true);
         StudentScoreDto score2Dto = new StudentScoreDto("语文", BigDecimal.valueOf(60), "合格", true);
-        StudentScoreDto score3Dto = new StudentScoreDto("英语", BigDecimal.valueOf(56), "不合格", false);
+        StudentScoreDto score3Dto = new StudentScoreDto("英语", BigDecimal.valueOf(56), "不合格(期末7月12号统考,7月29日出结果发学位证)", false);
         List<StudentScoreDto> scoreDtoList = new ArrayList<>();
         scoreDtoList.add(score1Dto);
         scoreDtoList.add(score2Dto);

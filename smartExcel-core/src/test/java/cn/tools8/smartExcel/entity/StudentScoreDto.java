@@ -19,9 +19,10 @@ public class StudentScoreDto extends WriteDataBase implements Serializable {
     @ExcelExport(names = {"学费统计报表", "学成科绩${writeDateChildrenIndex}", "得分"})
     private BigDecimal score;
     @ExcelExport(names = {"学费统计报表", "学成科绩${writeDateChildrenIndex}", "级别"})
+    @ExcelStyle(autoSizeColumn = true)
     private String level;
     @ExcelExport(names = {"学费统计报表", "学成科绩${writeDateChildrenIndex}", "是否通过"}, converter = IsPassValueConverter.class)
-    @ExcelStyle(cellStyleHandler = IsPassCellStyleHandler.class)
+    @ExcelStyle(cellStyleHandler = IsPassCellStyleHandler.class,autoSizeColumn = true)
     private Boolean isPass;
 
     public StudentScoreDto() {

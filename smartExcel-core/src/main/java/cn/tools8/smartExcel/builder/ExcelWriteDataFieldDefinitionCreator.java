@@ -50,6 +50,7 @@ public class ExcelWriteDataFieldDefinitionCreator {
                     if (!styleHandler.isInterface() && !Modifier.isAbstract(styleHandler.getModifiers())) {
                         styleDefinition.setCellStyleHandler(styleHandler.newInstance());
                     }
+                    styleDefinition.setAutoSizeColumn(excelStyle.autoSizeColumn());
                     dataField.setStyleDefinition(styleDefinition);
                 }
                 dataFields.add(dataField);

@@ -11,6 +11,7 @@ import cn.tools8.smartExcel.entity.definition.ExcelStyleDefinition;
 import cn.tools8.smartExcel.entity.definition.WriteDataFieldDefinition;
 import cn.tools8.smartExcel.enums.GenericStyleTypeEnum;
 import cn.tools8.smartExcel.interfaces.IExcelCellStyleCreator;
+import cn.tools8.smartExcel.manager.AutoSizeColumnManager;
 import cn.tools8.smartExcel.manager.ExcelWriteCellStyleManager;
 import cn.tools8.smartExcel.manager.ExpressionManager;
 import cn.tools8.smartExcel.utils.CellUtils;
@@ -23,9 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * excel写入类
@@ -62,6 +62,8 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
             int maxChildrenCount = createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet);
             int maxRows = config.getExcelType().getConfig().getMaxRows() - maxTitleRowCount;
             int maxSheetCount = dataList.size() / maxRows + 1;
+            Map<Integer, Integer> autoSizeColumnList = new HashMap<>();
+            AutoSizeColumnManager autoSizeColumnManager = new AutoSizeColumnManager();
             for (int i = 0; i < maxSheetCount; i++) {
                 if (i > 0) {
                     sheet = workbook.createSheet(config.getDefaultSheetName() + i);
@@ -76,11 +78,15 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
                         Cell cell = row.createCell(column);
                         Object originValue = dataBase.getFieldValue(dataField.getKey());
                         setCellValueStyle(dataBase, dataField, cell, originValue);
+                        if (dataField.getStyleDefinition() != null && dataField.getStyleDefinition().isAutoSizeColumn()) {
+                            autoSizeColumnManager.setMax(column, cell.toString().length());
+                        }
                     }
                     for (int count = 0; count < maxChildrenCount; count++) {
                         for (int column = 0; column < childDataFields.size(); column++) {
                             WriteDataFieldDefinition dataField = childDataFields.get(column);
-                            Cell cell = row.createCell(column + mainDataFields.size() + count * childDataFields.size());
+                            int columnNum = column + mainDataFields.size() + count * childDataFields.size();
+                            Cell cell = row.createCell(columnNum);
                             int size = dataBase.getWriteDateChildren() == null ? 0 : dataBase.getWriteDateChildren().size();
                             if (count < size) {
                                 WriteDataBase subDataBase = dataBase.getWriteDateChildren().get(count);
@@ -92,9 +98,14 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
                             } else {
                                 cell.setCellStyle(genericCellStyleManager.getCellStyle(GenericStyleTypeEnum.CONTENT.getType()));
                             }
+                            if (dataField.getStyleDefinition() != null && dataField.getStyleDefinition().isAutoSizeColumn()) {
+                                autoSizeColumnManager.setMax(columnNum, cell.toString().length());
+                            }
                         }
                     }
                 }
+                //自适应宽度
+                autoSizeColumnManager.autoSizeColumn(sheet);
             }
             try (OutputStream stream = new FileOutputStream(config.getFilePath())) {
                 workbook.write(stream);

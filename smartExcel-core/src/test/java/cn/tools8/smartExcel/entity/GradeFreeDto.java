@@ -3,6 +3,7 @@ package cn.tools8.smartExcel.entity;
 import cn.tools8.smartExcel.annotaion.ExcelDateFormat;
 import cn.tools8.smartExcel.annotaion.ExcelExport;
 import cn.tools8.smartExcel.annotaion.ExcelImport;
+import cn.tools8.smartExcel.annotaion.ExcelStyle;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -37,6 +38,7 @@ public class GradeFreeDto extends WriteDataBase implements Serializable {
     private String comment;
     @ExcelDateFormat()
     @ExcelExport(names = {"学费统计报表","收集时间","收集时间"})
+    @ExcelStyle(autoSizeColumn = true)
     @ExcelImport(names ="收集时间")
     private Date createDate;
 
