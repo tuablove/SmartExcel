@@ -10,8 +10,8 @@ import cn.tools8.smartExcel.interfaces.IExcelWriteCellStyleManager;
 public interface IWriteTitleCellStyleHandler {
     /**
      * 标题样式创建
-     * @param writeCellStyleManager
-     * @param creator
+     * @param cellStyleManager  样式管理
+     * @param creator   样式创建器
      */
-    void onCreating(IExcelWriteCellStyleManager writeCellStyleManager, IExcelCellStyleCreator creator);
+    void onCreating(IExcelWriteCellStyleManager cellStyleManager, IExcelCellStyleCreator creator);
 }

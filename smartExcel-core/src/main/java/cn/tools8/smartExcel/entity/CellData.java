@@ -10,12 +10,33 @@ import org.apache.poi.ss.usermodel.CellStyle;
  * @author tuaobin 2023/6/21$ 17:47$
  */
 public class CellData {
+    /**
+     * 单元格
+     */
     private Cell cell;
+    /**
+     * 行数据
+     */
     private Object rowData;
+    /**
+     * 单元格原始数据
+     */
     private Object originCellValue;
+    /**
+     * 单元格转换后数据
+     */
     private Object cellValue;
+    /**
+     * 默认样式
+     */
     private CellStyle defaultCellStyle;
+    /**
+     * 样式管理
+     */
     private IExcelWriteCellStyleManager styleManager;
+    /**
+     * 样式创建
+     */
     private IExcelCellStyleCreator styleCreator;
 
     public CellData() {

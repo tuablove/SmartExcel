@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -39,6 +38,12 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
     private final ExcelWriteCellStyleManager dataCellStyleManager = new ExcelWriteCellStyleManager();
     private final ExpressionManager expressionManager = new ExpressionManager();
 
+    /**
+     * 写入数据
+     * @param dataList  数据列表
+     * @param config 写入配置
+     * @throws Exception
+     */
     public void write(List<? extends WriteDataBase> dataList, ExcelWriteConfig config) throws Exception {
         try {
             workbook = WorkbookCreator.createWorkbook(config);
@@ -257,9 +262,6 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
         int lastColumn = mainDataFields.size() + maxChildrenCount * childDataFields.size() - 1;
         ExcelMergeUtils.mergeRange(sheet, new CellRangeAddress(0, maxTitleRowCount - 1, 0, lastColumn));
         return maxChildrenCount;
-//        for (int i = 0; i <= lastColumn; i++) {
-//            sheet.autoSizeColumn(0, false);
-//        }
     }
 
 

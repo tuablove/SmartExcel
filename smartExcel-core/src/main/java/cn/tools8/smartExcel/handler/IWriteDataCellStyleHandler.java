@@ -10,7 +10,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 public interface IWriteDataCellStyleHandler {
     /**
      * 创建样式
-     * @param cellData
+     * @param cellData 单元格数据
      */
     CellStyle onCreating(CellData cellData);
 }

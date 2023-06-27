@@ -24,7 +24,7 @@ public class GenericCellStyleCreator {
         for (GenericStyleTypeEnum styleTypeEnum : GenericStyleTypeEnum.values()) {
             CellStyle style = null;
             if (styleHandler != null) {
-                style = styleHandler.onCreated(styleTypeEnum, creator);
+                style = styleHandler.onCreate(styleTypeEnum, creator);
             }
             if (style == null) {
                 switch (styleTypeEnum) {

@@ -36,9 +36,8 @@ public class AutoSizeColumnManager {
      */
     public void autoSizeColumn(Sheet sheet) {
         for (Map.Entry<Integer, Integer> columnLength : columnLengthMap.entrySet()) {
-//            sheet.autoSizeColumn(columnLength.getKey());
-            int width = Math.min(255, (Math.max(sheet.getColumnWidth(columnLength.getKey()) / 256, columnLength.getValue())) + 6) * 256;
-            sheet.setColumnWidth(columnLength.getKey(), sheet.getColumnWidth(columnLength.getKey())+2000);
+            int width = Math.min(255, (Math.max(sheet.getColumnWidth(columnLength.getKey()) / 256, (int) (columnLength.getValue() * 1.7))) + 6) * 256;
+            sheet.setColumnWidth(columnLength.getKey(), width);
         }
     }
 }

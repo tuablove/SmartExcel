@@ -9,8 +9,8 @@ import org.apache.poi.ss.usermodel.CellStyle;
 public interface IExcelWriteCellStyleManager extends IExcelWriteCellStyleReader{
     /**
      * 添加一个样式
-     * @param type
-     * @param cellStyle
+     * @param type  样式名字
+     * @param cellStyle 样式
      */
     void addCellStyle(String type, CellStyle cellStyle);
 }
