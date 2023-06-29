@@ -16,7 +16,12 @@ import cn.tools8.smartExcel.manager.ExcelWriteCellStyleManager;
 import cn.tools8.smartExcel.manager.ExpressionManager;
 import cn.tools8.smartExcel.utils.CellUtils;
 import cn.tools8.smartExcel.utils.ExcelMergeUtils;
+import cn.tools8.smartExcel.utils.ExcelWriteConfigUtils;
 import cn.tools8.smartExcel.utils.IOUtils;
+import org.apache.poi.poifs.crypt.EncryptionInfo;
+import org.apache.poi.poifs.crypt.EncryptionMode;
+import org.apache.poi.poifs.crypt.Encryptor;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.slf4j.Logger;
@@ -24,7 +29,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * excel写入类
@@ -45,6 +52,7 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
      * @throws Exception
      */
     public void write(List<? extends WriteDataBase> dataList, ExcelWriteConfig config) throws Exception {
+        ExcelWriteConfigUtils.validateConfig(config);
         try {
             workbook = WorkbookCreator.createWorkbook(config);
             //默认样式初始化
@@ -53,12 +61,12 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
             titleCellStyleManager = TitleCellStyleCreator.create(this, config.getTitleCellStyleHandler());
             //表达式初始化
             expressionManager.setTitleExpressionHandler(config.getTitleExpressionHandler());
-
-            List<WriteDataFieldDefinition> mainDataFields = ExcelWriteDataFieldDefinitionCreator.extractDataFields(clazz, dataList.size() > 0 ? dataList.get(0) : null);
+            expressionManager.setDataList(dataList);
+            List<WriteDataFieldDefinition> mainDataFields = ExcelWriteDataFieldDefinitionCreator.extractDataFields(clazz, dataList.size() > 0 ? dataList.get(0) : null,config);
             List<WriteDataFieldDefinition> childDataFields = null;
             if (dataList.size() > 0) {
                 List<? extends WriteDataBase> writeDateChildren = dataList.get(0).getWriteDateChildren();
-                childDataFields = ExcelWriteDataFieldDefinitionCreator.extractDataFields(writeDateChildren.get(0).getClass(), writeDateChildren.get(0));
+                childDataFields = ExcelWriteDataFieldDefinitionCreator.extractDataFields(writeDateChildren.get(0).getClass(), writeDateChildren.get(0),config);
             } else {
                 childDataFields = new ArrayList<>();
             }
@@ -67,7 +75,6 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
             int maxChildrenCount = createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet);
             int maxRows = config.getExcelType().getConfig().getMaxRows() - maxTitleRowCount;
             int maxSheetCount = dataList.size() / maxRows + 1;
-            Map<Integer, Integer> autoSizeColumnList = new HashMap<>();
             AutoSizeColumnManager autoSizeColumnManager = new AutoSizeColumnManager();
             for (int i = 0; i < maxSheetCount; i++) {
                 if (i > 0) {
@@ -112,14 +119,39 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
                 //自适应宽度
                 autoSizeColumnManager.autoSizeColumn(sheet);
             }
-            try (OutputStream stream = new FileOutputStream(config.getFilePath())) {
-                workbook.write(stream);
-                stream.flush();
-            }
+            save(config);
         } catch (Exception e) {
             throw e;
         } finally {
             IOUtils.close(workbook);
+        }
+    }
+
+    /**
+     * 保存
+     * @param config
+     * @throws Exception
+     */
+    private void save(ExcelWriteConfig config) throws Exception {
+        if(config.getPassword()!=null && !config.getPassword().trim().equals("")) {
+            try (POIFSFileSystem poifsFileSystem = new POIFSFileSystem();
+                 OutputStream stream = new FileOutputStream(config.getFilePath())
+            ) {
+                EncryptionInfo info = new EncryptionInfo(EncryptionMode.standard);
+                Encryptor enc = info.getEncryptor();
+                enc.confirmPassword(config.getPassword());
+                try (OutputStream encryptOutPutStream = enc.getDataStream(poifsFileSystem)) {
+                    workbook.write(encryptOutPutStream);
+                    encryptOutPutStream.flush();
+                }
+                poifsFileSystem.writeFilesystem(stream);
+                stream.flush();
+            }
+        }else {
+            try (OutputStream stream = new FileOutputStream(config.getFilePath())) {
+                workbook.write(stream);
+                stream.flush();
+            }
         }
     }
 

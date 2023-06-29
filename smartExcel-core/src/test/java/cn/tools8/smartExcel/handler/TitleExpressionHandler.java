@@ -1,13 +1,17 @@
 package cn.tools8.smartExcel.handler;
 
+import cn.tools8.smartExcel.entity.WriteDataBase;
 import cn.tools8.smartExcel.interfaces.IExpressionCreator;
+
+import java.util.List;
 
 /**
  * @author tuaobin 2023/6/25$ 14:44$
  */
 public class TitleExpressionHandler implements IWriteTitleExpressionHandler{
+
     @Override
-    public void onCreating(IExpressionCreator creator) {
+    public void onCreating(List<? extends WriteDataBase> dataList, IExpressionCreator creator) {
         creator.put("sno","论文编号");
     }
 }

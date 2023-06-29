@@ -1,6 +1,9 @@
 package cn.tools8.smartExcel.handler;
 
+import cn.tools8.smartExcel.entity.WriteDataBase;
 import cn.tools8.smartExcel.interfaces.IExpressionCreator;
+
+import java.util.List;
 
 /**
  * 表头内容表达式
@@ -11,5 +14,5 @@ public interface IWriteTitleExpressionHandler {
      * 表达式创建
      * @param creator
      */
-    void onCreating(IExpressionCreator creator);
+    void onCreating(List<? extends WriteDataBase> dataList,IExpressionCreator creator);
 }

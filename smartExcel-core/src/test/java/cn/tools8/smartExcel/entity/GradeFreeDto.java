@@ -17,6 +17,7 @@ public class GradeFreeDto extends WriteDataBase implements Serializable {
 //    @ExcelExport(names = {"学费统计报表","学费统计报表","学费统计报表"})
     private Integer number;
     @ExcelExport(names = {"学费统计报表","个人信息","姓名"})
+    @ExcelStyle(autoSizeColumn = true)
     @ExcelImport(names ="姓名")
     private String name;
     @ExcelExport(names = {"学费统计报表","费用","费用简介"})

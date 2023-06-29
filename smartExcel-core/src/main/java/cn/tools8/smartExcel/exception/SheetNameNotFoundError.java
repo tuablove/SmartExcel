@@ -5,7 +5,7 @@ package cn.tools8.smartExcel.exception;
  *
  * @author tuaobin 2023/6/16$ 10:54$
  */
-public class SheetNameNotFoundError extends RuntimeException {
+public class SheetNameNotFoundError extends SmartExcelError {
 
     public SheetNameNotFoundError() {
         super();

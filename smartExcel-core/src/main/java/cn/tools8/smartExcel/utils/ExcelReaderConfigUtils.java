@@ -28,7 +28,10 @@ public class ExcelReaderConfigUtils {
         } else {
             for (ExcelReaderSheetConfig sheetConfig : config.getSheetConfigs()) {
                 if (sheetConfig.getSheetIndexBegin() == null || sheetConfig.getSheetIndexBegin() < 0) {
-                    //todo throw
+                    throw new IllegalArgumentException("sheet config sheetIndexBegin is null");
+                }
+                if(sheetConfig.getDataBeginRowIndex()==null ||  sheetConfig.getDataBeginRowIndex() < 0){
+                    throw new IllegalArgumentException("sheet config dataBeginRowIndex is null");
                 }
             }
         }

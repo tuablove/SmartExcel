@@ -41,6 +41,10 @@ public class DynamicColumn implements Serializable {
      * 单元格样式
      */
     private ExcelStyleDefinition style;
+    /**
+     * 是否忽略
+     */
+    private boolean ignore=false;
 
     public DynamicColumn() {
     }
@@ -105,6 +109,14 @@ public class DynamicColumn implements Serializable {
         this.valueType = valueType;
     }
 
+    public boolean isIgnore() {
+        return ignore;
+    }
+
+    public void setIgnore(boolean ignore) {
+        this.ignore = ignore;
+    }
+
     /**
      * 深拷贝
      * @return
@@ -118,6 +130,7 @@ public class DynamicColumn implements Serializable {
         other.setValueType(this.getValueType());
         other.setWriteValueConverter(this.getWriteValueConverter());
         other.setStyle(this.getStyle());
+        other.setIgnore(this.isIgnore());
         return other;
     }
 }

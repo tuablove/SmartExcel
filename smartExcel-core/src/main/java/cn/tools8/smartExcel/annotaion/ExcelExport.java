@@ -30,4 +30,9 @@ public @interface ExcelExport {
      */
     Class<? extends IWriteValueConverter> converter() default IWriteValueConverter.class;
 
+    /**
+     * 是否忽略 true=忽略 false=不忽略
+     * @return
+     */
+    boolean ignore() default false;
 }

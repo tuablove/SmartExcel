@@ -1,5 +1,6 @@
 package cn.tools8.smartExcel.manager;
 
+import cn.tools8.smartExcel.entity.WriteDataBase;
 import cn.tools8.smartExcel.handler.IWriteTitleExpressionHandler;
 import cn.tools8.smartExcel.interfaces.IExpressionCreator;
 import org.apache.commons.jexl3.*;
@@ -7,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,9 +25,18 @@ public class ExpressionManager implements IExpressionCreator {
     private JxltEngine engine;
     private volatile boolean initialized = false;
     private IWriteTitleExpressionHandler titleExpressionHandler;
+    private List<? extends WriteDataBase> dataList;
 
     public ExpressionManager() {
 
+    }
+
+    public List<? extends WriteDataBase> getDataList() {
+        return dataList;
+    }
+
+    public void setDataList(List<? extends WriteDataBase> dataList) {
+        this.dataList = dataList;
     }
 
     public void setTitleExpressionHandler(IWriteTitleExpressionHandler titleExpressionHandler) {
@@ -34,6 +45,11 @@ public class ExpressionManager implements IExpressionCreator {
 
     public ExpressionManager(IWriteTitleExpressionHandler titleExpressionHandler) {
         this.titleExpressionHandler = titleExpressionHandler;
+    }
+
+    public ExpressionManager(IWriteTitleExpressionHandler titleExpressionHandler, List<? extends WriteDataBase> dataList) {
+        this.titleExpressionHandler = titleExpressionHandler;
+        this.dataList = dataList;
     }
 
     /**
@@ -48,7 +64,7 @@ public class ExpressionManager implements IExpressionCreator {
                     // 创建 JEXL 上下文对象
                     context = new MapContext();
                     if (titleExpressionHandler != null) {
-                        titleExpressionHandler.onCreating(this);
+                        titleExpressionHandler.onCreating(dataList, this);
                     }
                     for (Map.Entry<String, Object> entry : objectMap.entrySet()) {
                         context.set(entry.getKey(), entry.getValue());
