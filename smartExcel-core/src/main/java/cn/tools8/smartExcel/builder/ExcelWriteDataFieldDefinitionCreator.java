@@ -29,7 +29,7 @@ public class ExcelWriteDataFieldDefinitionCreator {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public static  List<WriteDataFieldDefinition> extractDataFields(Class<?> clazz, Object writeDataBase, ExcelWriteConfig config) throws InstantiationException, IllegalAccessException {
+    public static  List<WriteDataFieldDefinition> createDataFieldDefinations(Class<?> clazz, Object writeDataBase, ExcelWriteConfig config) throws InstantiationException, IllegalAccessException {
         Set<String> includeFields = config.getIncludeFields();
         Set<String> excludeFields = config.getExcludeFields();
 

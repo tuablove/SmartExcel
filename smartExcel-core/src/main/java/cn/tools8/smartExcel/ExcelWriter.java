@@ -63,24 +63,8 @@ public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCrea
             //表达式初始化
             expressionManager.setTitleExpressionHandler(config.getTitleExpressionHandler());
             expressionManager.setDataList(dataList);
-            List<WriteDataFieldDefinition> mainDataFields = ExcelWriteDataFieldDefinitionCreator.extractDataFields(clazz, dataList.size() > 0 ? dataList.get(0) : null, config);
-            List<WriteDataFieldDefinition> childDataFields = null;
-            if (dataList.size() > 0 && dataList.get(0) instanceof WriteDataBase) {
-                WriteDataBase child = null;
-                for (T item : dataList) {
-                    List<? extends WriteDataBase> writeDateChildren = ((WriteDataBase) item).getWriteDateChildren();
-                    if (writeDateChildren != null && writeDateChildren.size() > 0) {
-                        child = writeDateChildren.get(0);
-                        break;
-                    }
-                }
-                if (child != null) {
-                    childDataFields = ExcelWriteDataFieldDefinitionCreator.extractDataFields(child.getClass(), child, config);
-                }
-            }
-            if (childDataFields == null) {
-                childDataFields = new ArrayList<>();
-            }
+            List<WriteDataFieldDefinition> mainDataFields = ExcelWriteDataFieldDefinitionCreator.createDataFieldDefinations(clazz, dataList.size() > 0 ? dataList.get(0) : null, config);
+            List<WriteDataFieldDefinition> childDataFields = getChildrenDataFieldDefinitions(dataList, config);
             int maxTitleRowCount = calculateMaxTitleRowCount(mainDataFields, childDataFields);
             Sheet sheet = workbook.createSheet(config.getDefaultSheetName());
             int maxChildrenCount = createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet);
@@ -110,29 +94,7 @@ public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCrea
                             autoSizeColumnManager.setMax(column, cell.toString().length());
                         }
                     }
-                    if (dataBase instanceof WriteDataBase) {
-                        for (int count = 0; count < maxChildrenCount; count++) {
-                            for (int column = 0; column < childDataFields.size(); column++) {
-                                WriteDataFieldDefinition dataField = childDataFields.get(column);
-                                int columnNum = column + mainDataFields.size() + count * childDataFields.size();
-                                Cell cell = row.createCell(columnNum);
-                                int size = ((WriteDataBase) dataBase).getWriteDateChildren() == null ? 0 : ((WriteDataBase) dataBase).getWriteDateChildren().size();
-                                if (count < size) {
-                                    WriteDataBase subDataBase = ((WriteDataBase) dataBase).getWriteDateChildren().get(count);
-                                    Object originValue = null;
-                                    if (subDataBase != null) {
-                                        originValue = subDataBase.getFieldValue(dataField.getKey());
-                                    }
-                                    setCellValueStyle(subDataBase, dataField, cell, originValue);
-                                } else {
-                                    cell.setCellStyle(genericCellStyleManager.getCellStyle(GenericStyleTypeEnum.CONTENT.getType()));
-                                }
-                                if (dataField.getStyleDefinition() != null && dataField.getStyleDefinition().isAutoSizeColumn()) {
-                                    autoSizeColumnManager.setMax(columnNum, cell.toString().length());
-                                }
-                            }
-                        }
-                    }
+                    writeChildren(mainDataFields, childDataFields, maxChildrenCount, autoSizeColumnManager, row, dataBase);
                 }
                 //自适应宽度
                 autoSizeColumnManager.autoSizeColumn(sheet);
@@ -142,6 +104,70 @@ public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCrea
             throw e;
         } finally {
             IOUtils.close(workbook);
+        }
+    }
+
+    /**
+     * 获取子元素的字段定义
+     * @param dataList
+     * @param config
+     * @return
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     */
+    private List<WriteDataFieldDefinition> getChildrenDataFieldDefinitions(List<T> dataList, ExcelWriteConfig config) throws InstantiationException, IllegalAccessException {
+        List<WriteDataFieldDefinition> childDataFields = null;
+        if (dataList.size() > 0 && dataList.get(0) instanceof WriteDataBase) {
+            WriteDataBase child = null;
+            for (T item : dataList) {
+                List<? extends WriteDataBase> writeDateChildren = ((WriteDataBase) item).getWriteDateChildren();
+                if (writeDateChildren != null && writeDateChildren.size() > 0) {
+                    child = writeDateChildren.get(0);
+                    break;
+                }
+            }
+            if (child != null) {
+                childDataFields = ExcelWriteDataFieldDefinitionCreator.createDataFieldDefinations(child.getClass(), child, config);
+            }
+        }
+        if (childDataFields == null) {
+            childDataFields = new ArrayList<>();
+        }
+        return childDataFields;
+    }
+
+    /**
+     * 写入子元素
+     * @param mainDataFields
+     * @param childDataFields
+     * @param maxChildrenCount
+     * @param autoSizeColumnManager
+     * @param row
+     * @param dataBase
+     */
+    private void writeChildren(List<WriteDataFieldDefinition> mainDataFields, List<WriteDataFieldDefinition> childDataFields, int maxChildrenCount, AutoSizeColumnManager autoSizeColumnManager, Row row, Object dataBase) {
+        if (dataBase instanceof WriteDataBase) {
+            for (int count = 0; count < maxChildrenCount; count++) {
+                for (int column = 0; column < childDataFields.size(); column++) {
+                    WriteDataFieldDefinition dataField = childDataFields.get(column);
+                    int columnNum = column + mainDataFields.size() + count * childDataFields.size();
+                    Cell cell = row.createCell(columnNum);
+                    int size = ((WriteDataBase) dataBase).getWriteDateChildren() == null ? 0 : ((WriteDataBase) dataBase).getWriteDateChildren().size();
+                    if (count < size) {
+                        WriteDataBase subDataBase = ((WriteDataBase) dataBase).getWriteDateChildren().get(count);
+                        Object originValue = null;
+                        if (subDataBase != null) {
+                            originValue = subDataBase.getFieldValue(dataField.getKey());
+                        }
+                        setCellValueStyle(subDataBase, dataField, cell, originValue);
+                    } else {
+                        cell.setCellStyle(genericCellStyleManager.getCellStyle(GenericStyleTypeEnum.CONTENT.getType()));
+                    }
+                    if (dataField.getStyleDefinition() != null && dataField.getStyleDefinition().isAutoSizeColumn()) {
+                        autoSizeColumnManager.setMax(columnNum, cell.toString().length());
+                    }
+                }
+            }
         }
     }
 
