@@ -148,4 +148,13 @@ public class WriteDataBase extends ArrayList<DynamicColumn> implements Serializa
         }
 
     }
+
+    @Override
+    public String toString() {
+        return "WriteDataBase{" +
+                "dynamicColumnMap=" + dynamicColumnMap +
+                ", writeDateChildren=" + writeDateChildren +
+                ", modCount=" + modCount +
+                "} " + super.toString();
+    }
 }

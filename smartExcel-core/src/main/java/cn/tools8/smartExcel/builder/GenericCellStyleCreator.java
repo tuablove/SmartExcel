@@ -33,13 +33,13 @@ public class GenericCellStyleCreator {
                         style.setAlignment(HorizontalAlignment.CENTER);
                         style.setVerticalAlignment(VerticalAlignment.CENTER);
                         style.setBorderRight(BorderStyle.THIN);
-                        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+                        style.setRightBorderColor(IndexedColors.GREY_80_PERCENT.getIndex());
                         style.setBorderLeft(BorderStyle.THIN);
-                        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+                        style.setLeftBorderColor(IndexedColors.GREY_80_PERCENT.getIndex());
                         style.setBorderTop(BorderStyle.THIN);
-                        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+                        style.setTopBorderColor(IndexedColors.GREY_80_PERCENT.getIndex());
                         style.setBorderBottom(BorderStyle.THIN);
-                        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+                        style.setBottomBorderColor(IndexedColors.GREY_80_PERCENT.getIndex());
                         Font dataFont = creator.newCellFont();
                         dataFont.setFontName("Arial");
                         dataFont.setFontHeightInPoints((short) 10);
@@ -48,22 +48,22 @@ public class GenericCellStyleCreator {
                     case TITLE:
                         style = creator.newCellStyle();
                         style.setBorderRight(BorderStyle.THIN);
-                        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+                        style.setRightBorderColor(IndexedColors.GREY_80_PERCENT.getIndex());
                         style.setBorderLeft(BorderStyle.THIN);
-                        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+                        style.setLeftBorderColor(IndexedColors.GREY_80_PERCENT.getIndex());
                         style.setBorderTop(BorderStyle.THIN);
-                        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+                        style.setTopBorderColor(IndexedColors.GREY_80_PERCENT.getIndex());
                         style.setBorderBottom(BorderStyle.THIN);
-                        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+                        style.setBottomBorderColor(IndexedColors.GREY_80_PERCENT.getIndex());
                         style.setAlignment(HorizontalAlignment.CENTER);
                         style.setVerticalAlignment(VerticalAlignment.CENTER);
-                        style.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
-//                        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                        style.setFillForegroundColor(IndexedColors.SEA_GREEN.getIndex());
+                        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
                         Font headerFont = creator.newCellFont();
                         headerFont.setFontName("Arial");
                         headerFont.setFontHeightInPoints((short) 10);
                         headerFont.setBold(true);
-                        headerFont.setColor(IndexedColors.BLACK.getIndex());
+                        headerFont.setColor(IndexedColors.WHITE.getIndex());
                         style.setFont(headerFont);
                         break;
                 }

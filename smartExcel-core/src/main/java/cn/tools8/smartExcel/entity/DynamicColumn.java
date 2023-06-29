@@ -133,4 +133,18 @@ public class DynamicColumn implements Serializable {
         other.setIgnore(this.isIgnore());
         return other;
     }
+
+    @Override
+    public String toString() {
+        return "DynamicColumn{" +
+                "titleNames=" + titleNames +
+                ", key='" + key + '\'' +
+                ", order=" + order +
+                ", value=" + value +
+                ", valueType=" + valueType +
+                ", writeValueConverter=" + writeValueConverter +
+                ", style=" + style +
+                ", ignore=" + ignore +
+                '}';
+    }
 }

@@ -27,6 +27,7 @@
     <modules>
         <module>smartExcel-core</module>
         <module>smartConverter</module>
+        <module>smartExcel-demo</module>
     </modules>
     <packaging>pom</packaging>
 
