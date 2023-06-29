@@ -16,7 +16,7 @@ import java.util.Map;
  *
  * @author tuaobin 2023/6/21$ 10:25$
  */
-public class ExpressionManager implements IExpressionCreator {
+public class ExpressionManager<T> implements IExpressionCreator {
     private static final Logger logger = LoggerFactory.getLogger(ExpressionManager.class);
 
     private Map<String, Object> objectMap = new HashMap<>();
@@ -25,17 +25,17 @@ public class ExpressionManager implements IExpressionCreator {
     private JxltEngine engine;
     private volatile boolean initialized = false;
     private IWriteTitleExpressionHandler titleExpressionHandler;
-    private List<? extends WriteDataBase> dataList;
+    private List<T> dataList;
 
     public ExpressionManager() {
 
     }
 
-    public List<? extends WriteDataBase> getDataList() {
+    public List<T> getDataList() {
         return dataList;
     }
 
-    public void setDataList(List<? extends WriteDataBase> dataList) {
+    public void setDataList(List<T> dataList) {
         this.dataList = dataList;
     }
 
@@ -47,7 +47,7 @@ public class ExpressionManager implements IExpressionCreator {
         this.titleExpressionHandler = titleExpressionHandler;
     }
 
-    public ExpressionManager(IWriteTitleExpressionHandler titleExpressionHandler, List<? extends WriteDataBase> dataList) {
+    public ExpressionManager(IWriteTitleExpressionHandler titleExpressionHandler, List<T> dataList) {
         this.titleExpressionHandler = titleExpressionHandler;
         this.dataList = dataList;
     }

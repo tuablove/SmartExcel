@@ -12,7 +12,7 @@ import java.util.List;
 public class TitleExpressionHandler implements IWriteTitleExpressionHandler {
 
     @Override
-    public void onCreating(List<? extends WriteDataBase> dataList, IExpressionCreator creator) {
+    public void onCreating(List<?> dataList, IExpressionCreator creator) {
         creator.put("sno","论文编号");
     }
 }

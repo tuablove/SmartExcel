@@ -12,10 +12,9 @@ import java.util.Date;
 /**
  * @author tuaobin 2023/6/15$ 14:57$
  */
-public class GradeFreeDto extends WriteDataBase implements Serializable {
+public class GradeFeeDto implements Serializable {
     @ExcelImport(names = {"学号","学生编号"})
     @ExcelExport(names = {"学费统计报表","个人信息","${sno}"})
-//    @ExcelExport(names = {"学费统计报表","学费统计报表","学费统计报表"})
     private Integer number;
     @ExcelExport(names = {"学费统计报表","个人信息","姓名"})
     @ExcelStyle(autoSizeColumn = true)
@@ -42,10 +41,10 @@ public class GradeFreeDto extends WriteDataBase implements Serializable {
     @ExcelImport(names ="收集时间")
     private Date createDate;
 
-    public GradeFreeDto() {
+    public GradeFeeDto() {
     }
 
-    public GradeFreeDto(Integer number, String name, String description, BigDecimal income, BigDecimal outcome, Long ticketNum, String comment, Date createDate) {
+    public GradeFeeDto(Integer number, String name, String description, BigDecimal income, BigDecimal outcome, Long ticketNum, String comment, Date createDate) {
         this.number = number;
         this.name = name;
         this.description = description;

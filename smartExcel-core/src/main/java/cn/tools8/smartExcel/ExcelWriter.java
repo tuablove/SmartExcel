@@ -38,20 +38,21 @@ import java.util.List;
  *
  * @author tuaobin 2023/6/15 10:41
  */
-public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implements IExcelCellStyleCreator {
+public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCreator {
     private static final Logger logger = LoggerFactory.getLogger(ExcelWriter.class);
     private ExcelWriteCellStyleManager genericCellStyleManager;
     private ExcelWriteCellStyleManager titleCellStyleManager;
     private final ExcelWriteCellStyleManager dataCellStyleManager = new ExcelWriteCellStyleManager();
-    private final ExpressionManager expressionManager = new ExpressionManager();
+    private final ExpressionManager expressionManager = new ExpressionManager<T>();
 
     /**
      * 写入数据
-     * @param dataList  数据列表
-     * @param config 写入配置
+     *
+     * @param dataList 数据列表
+     * @param config   写入配置
      * @throws Exception
      */
-    public void write(List<? extends WriteDataBase> dataList, ExcelWriteConfig config) throws Exception {
+    public void write(List<T> dataList, ExcelWriteConfig config) throws Exception {
         ExcelWriteConfigUtils.validateConfig(config);
         try {
             workbook = WorkbookCreator.createWorkbook(config);
@@ -62,12 +63,22 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
             //表达式初始化
             expressionManager.setTitleExpressionHandler(config.getTitleExpressionHandler());
             expressionManager.setDataList(dataList);
-            List<WriteDataFieldDefinition> mainDataFields = ExcelWriteDataFieldDefinitionCreator.extractDataFields(clazz, dataList.size() > 0 ? dataList.get(0) : null,config);
+            List<WriteDataFieldDefinition> mainDataFields = ExcelWriteDataFieldDefinitionCreator.extractDataFields(clazz, dataList.size() > 0 ? dataList.get(0) : null, config);
             List<WriteDataFieldDefinition> childDataFields = null;
-            if (dataList.size() > 0) {
-                List<? extends WriteDataBase> writeDateChildren = dataList.get(0).getWriteDateChildren();
-                childDataFields = ExcelWriteDataFieldDefinitionCreator.extractDataFields(writeDateChildren.get(0).getClass(), writeDateChildren.get(0),config);
-            } else {
+            if (dataList.size() > 0 && dataList.get(0) instanceof WriteDataBase) {
+                WriteDataBase child = null;
+                for (T item : dataList) {
+                    List<? extends WriteDataBase> writeDateChildren = ((WriteDataBase) item).getWriteDateChildren();
+                    if (writeDateChildren != null && writeDateChildren.size() > 0) {
+                        child = writeDateChildren.get(0);
+                        break;
+                    }
+                }
+                if (child != null) {
+                    childDataFields = ExcelWriteDataFieldDefinitionCreator.extractDataFields(child.getClass(), child, config);
+                }
+            }
+            if (childDataFields == null) {
                 childDataFields = new ArrayList<>();
             }
             int maxTitleRowCount = calculateMaxTitleRowCount(mainDataFields, childDataFields);
@@ -84,34 +95,41 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
                 int pageSize = Math.min(dataList.size() - i * maxRows, maxRows);
                 for (int rowIndex = 0; rowIndex < pageSize; rowIndex++) {
                     Row row = sheet.createRow(rowIndex + maxTitleRowCount);
-                    WriteDataBase dataBase = dataList.get(i * pageSize + rowIndex);
+                    Object dataBase = dataList.get(i * pageSize + rowIndex);
                     for (int column = 0; column < mainDataFields.size(); column++) {
                         WriteDataFieldDefinition dataField = mainDataFields.get(column);
                         Cell cell = row.createCell(column);
-                        Object originValue = dataBase.getFieldValue(dataField.getKey());
+                        Object originValue = null;
+                        if (dataBase instanceof WriteDataBase) {
+                            originValue = ((WriteDataBase) dataBase).getFieldValue(dataField.getKey());
+                        } else {
+                            originValue = dataField.getField().get(dataBase);
+                        }
                         setCellValueStyle(dataBase, dataField, cell, originValue);
                         if (dataField.getStyleDefinition() != null && dataField.getStyleDefinition().isAutoSizeColumn()) {
                             autoSizeColumnManager.setMax(column, cell.toString().length());
                         }
                     }
-                    for (int count = 0; count < maxChildrenCount; count++) {
-                        for (int column = 0; column < childDataFields.size(); column++) {
-                            WriteDataFieldDefinition dataField = childDataFields.get(column);
-                            int columnNum = column + mainDataFields.size() + count * childDataFields.size();
-                            Cell cell = row.createCell(columnNum);
-                            int size = dataBase.getWriteDateChildren() == null ? 0 : dataBase.getWriteDateChildren().size();
-                            if (count < size) {
-                                WriteDataBase subDataBase = dataBase.getWriteDateChildren().get(count);
-                                Object originValue = null;
-                                if (subDataBase != null) {
-                                    originValue = subDataBase.getFieldValue(dataField.getKey());
+                    if (dataBase instanceof WriteDataBase) {
+                        for (int count = 0; count < maxChildrenCount; count++) {
+                            for (int column = 0; column < childDataFields.size(); column++) {
+                                WriteDataFieldDefinition dataField = childDataFields.get(column);
+                                int columnNum = column + mainDataFields.size() + count * childDataFields.size();
+                                Cell cell = row.createCell(columnNum);
+                                int size = ((WriteDataBase) dataBase).getWriteDateChildren() == null ? 0 : ((WriteDataBase) dataBase).getWriteDateChildren().size();
+                                if (count < size) {
+                                    WriteDataBase subDataBase = ((WriteDataBase) dataBase).getWriteDateChildren().get(count);
+                                    Object originValue = null;
+                                    if (subDataBase != null) {
+                                        originValue = subDataBase.getFieldValue(dataField.getKey());
+                                    }
+                                    setCellValueStyle(subDataBase, dataField, cell, originValue);
+                                } else {
+                                    cell.setCellStyle(genericCellStyleManager.getCellStyle(GenericStyleTypeEnum.CONTENT.getType()));
                                 }
-                                setCellValueStyle(subDataBase, dataField, cell, originValue);
-                            } else {
-                                cell.setCellStyle(genericCellStyleManager.getCellStyle(GenericStyleTypeEnum.CONTENT.getType()));
-                            }
-                            if (dataField.getStyleDefinition() != null && dataField.getStyleDefinition().isAutoSizeColumn()) {
-                                autoSizeColumnManager.setMax(columnNum, cell.toString().length());
+                                if (dataField.getStyleDefinition() != null && dataField.getStyleDefinition().isAutoSizeColumn()) {
+                                    autoSizeColumnManager.setMax(columnNum, cell.toString().length());
+                                }
                             }
                         }
                     }
@@ -129,11 +147,12 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
 
     /**
      * 保存
+     *
      * @param config
      * @throws Exception
      */
     private void save(ExcelWriteConfig config) throws Exception {
-        if(config.getPassword()!=null && !config.getPassword().trim().equals("")) {
+        if (config.getPassword() != null && !config.getPassword().trim().equals("")) {
             try (POIFSFileSystem poifsFileSystem = new POIFSFileSystem();
                  OutputStream stream = new FileOutputStream(config.getFilePath())
             ) {
@@ -147,7 +166,7 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
                 poifsFileSystem.writeFilesystem(stream);
                 stream.flush();
             }
-        }else {
+        } else {
             try (OutputStream stream = new FileOutputStream(config.getFilePath())) {
                 workbook.write(stream);
                 stream.flush();
@@ -163,7 +182,7 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
      * @param cell
      * @param originValue
      */
-    private void setCellValueStyle(WriteDataBase dataBase, WriteDataFieldDefinition dataField, Cell cell, Object originValue) {
+    private void setCellValueStyle(Object dataBase, WriteDataFieldDefinition dataField, Cell cell, Object originValue) {
         Object cellValue = null;
         if (dataField.getWriteValueConverter() != null) {
             cellValue = dataField.getWriteValueConverter().convert(cell, originValue, originValue == null ? null : originValue.getClass());
@@ -236,7 +255,7 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
      * @param sheet
      * @return
      */
-    private int createSheetTitle(List<? extends WriteDataBase> dataList, List<WriteDataFieldDefinition> mainDataFields, List<WriteDataFieldDefinition> childDataFields, int maxTitleRowCount, Sheet sheet) {
+    private int createSheetTitle(List<?> dataList, List<WriteDataFieldDefinition> mainDataFields, List<WriteDataFieldDefinition> childDataFields, int maxTitleRowCount, Sheet sheet) {
         for (int i = 0; i < maxTitleRowCount; i++) {
             sheet.createRow(i);
         }
@@ -263,8 +282,10 @@ public class ExcelWriter<T extends WriteDataBase> extends AbstractExcel implemen
         }
         int maxChildrenCount = 0;
         if (childDataFields.size() > 0) {
-            for (WriteDataBase dataBase : dataList) {
-                maxChildrenCount = Math.max(maxChildrenCount, dataBase.getWriteDateChildren() == null ? 0 : dataBase.getWriteDateChildren().size());
+            for (Object dataBase : dataList) {
+                if (dataBase instanceof WriteDataBase) {
+                    maxChildrenCount = Math.max(maxChildrenCount, ((WriteDataBase) dataBase).getWriteDateChildren() == null ? 0 : ((WriteDataBase) dataBase).getWriteDateChildren().size());
+                }
             }
             for (int count = 0; count < maxChildrenCount; count++) {
                 expressionManager.put("writeDateChildrenIndex", count + 1);

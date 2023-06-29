@@ -29,7 +29,7 @@ public class ExcelWriteDataFieldDefinitionCreator {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public static List<WriteDataFieldDefinition> extractDataFields(Class<? extends WriteDataBase> clazz, WriteDataBase writeDataBase, ExcelWriteConfig config) throws InstantiationException, IllegalAccessException {
+    public static  List<WriteDataFieldDefinition> extractDataFields(Class<?> clazz, Object writeDataBase, ExcelWriteConfig config) throws InstantiationException, IllegalAccessException {
         Set<String> includeFields = config.getIncludeFields();
         Set<String> excludeFields = config.getExcludeFields();
 
@@ -51,6 +51,7 @@ public class ExcelWriteDataFieldDefinitionCreator {
                     IWriteValueConverter newInstance = excelExport.converter().newInstance();
                     dataField.setWriteValueConverter(newInstance);
                 }
+                field.setAccessible(true);
                 dataField.setField(field);
                 dataField.setValueType(field.getType());
                 ExcelStyle excelStyle = field.getAnnotation(ExcelStyle.class);
@@ -68,8 +69,8 @@ public class ExcelWriteDataFieldDefinitionCreator {
                 dataFields.add(dataField);
             }
         }
-        if (writeDataBase != null) {
-            for (DynamicColumn dynamicColumn : writeDataBase) {
+        if (writeDataBase instanceof WriteDataBase) {
+            for (DynamicColumn dynamicColumn : (WriteDataBase) writeDataBase) {
                 String fieldKey = dynamicColumn.getKey();
                 if (keys.contains(fieldKey)) {
                     throw new DataFieldRepeatError(String.format("Class extends WriteDataBase 字段属性 %s重复", fieldKey));

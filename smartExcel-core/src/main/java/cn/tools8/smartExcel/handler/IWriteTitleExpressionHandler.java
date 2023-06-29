@@ -14,5 +14,5 @@ public interface IWriteTitleExpressionHandler {
      * 表达式创建
      * @param creator
      */
-    void onCreating(List<? extends WriteDataBase> dataList,IExpressionCreator creator);
+    void onCreating(List<?> dataList,IExpressionCreator creator);
 }

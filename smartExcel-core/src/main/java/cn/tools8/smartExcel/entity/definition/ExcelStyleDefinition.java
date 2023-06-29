@@ -45,4 +45,12 @@ public class ExcelStyleDefinition {
     public void setAutoSizeColumn(boolean autoSizeColumn) {
         this.autoSizeColumn = autoSizeColumn;
     }
+
+    public ExcelStyleDefinition() {
+    }
+
+    public ExcelStyleDefinition(String dataFormat, boolean autoSizeColumn) {
+        this.dataFormat = dataFormat;
+        this.autoSizeColumn = autoSizeColumn;
+    }
 }
