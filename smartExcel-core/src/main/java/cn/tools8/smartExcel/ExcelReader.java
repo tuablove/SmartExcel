@@ -2,13 +2,16 @@ package cn.tools8.smartExcel;
 
 import cn.tools8.convert.BaseTypeConverter;
 import cn.tools8.smartExcel.annotaion.ExcelImport;
+import cn.tools8.smartExcel.annotaion.ExcelImportValidateMessage;
 import cn.tools8.smartExcel.config.ExcelReaderConfig;
 import cn.tools8.smartExcel.config.ExcelReaderSheetConfig;
 import cn.tools8.smartExcel.entity.ImportField;
+import cn.tools8.smartExcel.entity.ValidateResult;
 import cn.tools8.smartExcel.handler.IReadValueConverter;
 import cn.tools8.smartExcel.utils.CellUtils;
 import cn.tools8.smartExcel.utils.ExcelReaderConfigUtils;
 import cn.tools8.smartExcel.utils.IOUtils;
+import cn.tools8.smartExcel.utils.ValidatorUtil;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -16,19 +19,19 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.misc.ReflectUtil;
 
+import javax.validation.groups.Default;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * excel读取类
+ *
  * @author tuaobin 2023/6/15 10:41
  */
 public class ExcelReader<T> extends AbstractExcel {
@@ -38,6 +41,10 @@ public class ExcelReader<T> extends AbstractExcel {
      * 目标类
      */
     private Class<T> clazz;
+    /**
+     * 标记为@ExcelImportValidateMessage 的属性
+     */
+    private List<Field> validateMessageFields;
 
     /**
      * 初始化
@@ -51,14 +58,13 @@ public class ExcelReader<T> extends AbstractExcel {
     /**
      * 读取excel
      *
-     * @param is  excel文件数据流
-     * @param <T>
+     * @param is excel文件数据流
      * @return
      * @throws IOException
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public <T> List<T> read(InputStream is) throws IOException, InstantiationException, IllegalAccessException {
+    public List<T> read(InputStream is) throws IOException, InstantiationException, IllegalAccessException {
         return read(is, null);
     }
 
@@ -67,13 +73,12 @@ public class ExcelReader<T> extends AbstractExcel {
      *
      * @param is     excel文件数据流
      * @param config 读取文件配置
-     * @param <T>
      * @return
      * @throws IOException
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public <T> List<T> read(InputStream is, ExcelReaderConfig config) throws IOException, InstantiationException, IllegalAccessException {
+    public List<T> read(InputStream is, ExcelReaderConfig config) throws IOException, InstantiationException, IllegalAccessException {
         config = ExcelReaderConfigUtils.validateConfig(config);
         try {
             workbook = WorkbookFactory.create(is, config.getPassword());
@@ -96,13 +101,14 @@ public class ExcelReader<T> extends AbstractExcel {
                     short maxColIx = titleRow.getLastCellNum();
                     Map<String, Short> titleColumnMap = getTitle2ColumnIndexMap(titleRow, minColIx, maxColIx);
                     Map<Short, ImportField> columnFieldMap = getColumn2ClassFieldMap(titleColumnMap);
+                    Map<String, ImportField> fieldMap = columnFieldMap.values().stream().collect(Collectors.toMap(ImportField::getName, item -> item));
                     for (int rowIndex = sheetConfig.getDataBeginRowIndex(); rowIndex < sheet.getLastRowNum(); rowIndex++) {
                         Row dataRow = sheet.getRow(rowIndex);
                         if (dataRow == null) {
                             continue;
                         }
                         Object entity = null;
-                        entity = ReflectUtil.newInstance(clazz);
+                        entity = clazz.newInstance();
                         boolean filled = false;
                         for (short column = minColIx; column < maxColIx; column++) {
                             ImportField importField = columnFieldMap.get(column);
@@ -130,6 +136,7 @@ public class ExcelReader<T> extends AbstractExcel {
                             }
                         }
                         if (filled) {
+                            validateEntity(config, sheetIndex, fieldMap, rowIndex, entity);
                             dataList.add((T) entity);
                         }
                     }
@@ -145,6 +152,69 @@ public class ExcelReader<T> extends AbstractExcel {
     }
 
     /**
+     * 验证对象
+     *
+     * @param config
+     * @param sheetIndex
+     * @param fieldMap
+     * @param rowIndex
+     * @param entity
+     */
+    private void validateEntity(ExcelReaderConfig config, Integer sheetIndex, Map<String, ImportField> fieldMap, int rowIndex, Object entity) throws IllegalAccessException {
+        if (config.isValidate()) {
+            Map<String, List<String>> errorMessage = null;
+            if (config.getValidateGroups() == null) {
+                errorMessage = ValidatorUtil.validate(entity, Default.class);
+            } else {
+                errorMessage = ValidatorUtil.validate(entity, config.getValidateGroups());
+            }
+            if (errorMessage != null && errorMessage.size() > 0) {
+                if (config.getValidateExcludeFields() != null && config.getValidateExcludeFields().size() > 0) {
+                    for (String excludeFieldName : config.getValidateExcludeFields()) {
+                        errorMessage.remove(excludeFieldName);
+                    }
+                }
+                if (errorMessage.size() > 0) {
+                    ValidateResult validateResult = new ValidateResult();
+                    validateResult.setSheetIndex(sheetIndex);
+                    validateResult.setRow(rowIndex);
+                    validateResult.setRowData(entity);
+                    for (Map.Entry<String, List<String>> errorMessageEntry : errorMessage.entrySet()) {
+                        ImportField importField = fieldMap.get(errorMessageEntry.getKey());
+                        if (importField != null) {
+                            for (int i = 0; i < errorMessageEntry.getValue().size(); i++) {
+                                errorMessageEntry.getValue().set(i,errorMessageEntry.getValue().get(i).replaceAll("\\$\\{名称\\}", importField.getColumnName()));
+                            }
+                        }
+                    }
+                    config.getValidateResults().add(validateResult);
+                    if (validateMessageFields != null && validateMessageFields.size() > 0) {
+                        String validateMessageSingle = errorMessage.values().stream()
+                                .flatMap(List::stream)
+                                .collect(Collectors.joining(","));
+                        List<String> validateMessageList = errorMessage.values().stream()
+                                .flatMap(List::stream)
+                                .collect(Collectors.toList());
+                        //写入对象指定字段
+                        for (Field validateMessageField : validateMessageFields) {
+                            if (validateMessageField.getType().isAssignableFrom(String.class)) {
+                                validateMessageField.set(entity, validateMessageSingle);
+                            } else if (List.class.isAssignableFrom(validateMessageField.getType())) {
+                                try {
+                                    validateMessageField.set(entity, validateMessageList);
+                                }catch (Exception ignore){
+
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * 获取列索引与目标属性的对应map
      *
      * @param titleColumnMap
@@ -155,7 +225,13 @@ public class ExcelReader<T> extends AbstractExcel {
     private Map<Short, ImportField> getColumn2ClassFieldMap(Map<String, Short> titleColumnMap) throws InstantiationException, IllegalAccessException {
         Map<Short, ImportField> columnFieldMap = new HashMap<>();
         Field[] declaredFields = clazz.getDeclaredFields();
+        validateMessageFields = new ArrayList<>();
         for (Field declaredField : declaredFields) {
+            Annotation validateMessageAnnotation = declaredField.getAnnotation(ExcelImportValidateMessage.class);
+            if (validateMessageAnnotation != null) {
+                declaredField.setAccessible(true);
+                validateMessageFields.add(declaredField);
+            }
             ExcelImport excelImport = declaredField.getAnnotation(ExcelImport.class);
             if (excelImport == null || ((excelImport.names() == null || excelImport.names().length == 0) && (excelImport.columnString() == null || excelImport.columnString().length() == 0))) {
                 continue;
@@ -169,14 +245,14 @@ public class ExcelReader<T> extends AbstractExcel {
                 for (String name : excelImport.names()) {
                     Short column = titleColumnMap.get(name);
                     if (column != null) {
-                        columnFieldMap.put(column, new ImportField(declaredField, converter));
+                        columnFieldMap.put(column, new ImportField(declaredField.getName(), declaredField, converter, name));
                     }
                 }
             }
             if (excelImport.columnString() != null && !excelImport.columnString().equals("")) {
                 int column = CellReference.convertColStringToIndex(excelImport.columnString());
                 if (column > 0) {
-                    columnFieldMap.put(new Integer(column).shortValue(), new ImportField(declaredField, converter));
+                    columnFieldMap.put(new Integer(column).shortValue(), new ImportField(declaredField.getName(), declaredField, converter, excelImport.columnString()));
                 }
             }
         }

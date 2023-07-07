@@ -11,6 +11,10 @@ import java.lang.reflect.Field;
  */
 public class ImportField implements Serializable {
     /**
+     * 字段名称
+     */
+    private String name;
+    /**
      * 字段
      */
     private Field field;
@@ -18,13 +22,26 @@ public class ImportField implements Serializable {
      * 数据转换
      */
     private IReadValueConverter converter;
-
+    /**
+     * 列名称
+     */
+    private String columnName;
     public ImportField() {
     }
 
-    public ImportField(Field field, IReadValueConverter converter) {
+    public ImportField(String name, Field field, IReadValueConverter converter, String columnName) {
+        this.name = name;
         this.field = field;
         this.converter = converter;
+        this.columnName = columnName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Field getField() {
@@ -41,5 +58,13 @@ public class ImportField implements Serializable {
 
     public void setConverter(IReadValueConverter converter) {
         this.converter = converter;
+    }
+
+    public String getColumnName() {
+        return columnName;
+    }
+
+    public void setColumnName(String columnName) {
+        this.columnName = columnName;
     }
 }
