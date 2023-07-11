@@ -8,6 +8,7 @@ import cn.tools8.smartExcel.config.ExcelReaderSheetConfig;
 import cn.tools8.smartExcel.entity.ImportField;
 import cn.tools8.smartExcel.entity.ValidateResult;
 import cn.tools8.smartExcel.handler.IReadValueConverter;
+import cn.tools8.smartExcel.manager.validator.PropertyMessageInterpolator;
 import cn.tools8.smartExcel.utils.CellUtils;
 import cn.tools8.smartExcel.utils.ExcelReaderConfigUtils;
 import cn.tools8.smartExcel.utils.IOUtils;
@@ -102,7 +103,7 @@ public class ExcelReader<T> extends AbstractExcel {
                     Map<String, Short> titleColumnMap = getTitle2ColumnIndexMap(titleRow, minColIx, maxColIx);
                     Map<Short, ImportField> columnFieldMap = getColumn2ClassFieldMap(titleColumnMap);
                     Map<String, ImportField> fieldMap = columnFieldMap.values().stream().collect(Collectors.toMap(ImportField::getName, item -> item));
-                    for (int rowIndex = sheetConfig.getDataBeginRowIndex(); rowIndex < sheet.getLastRowNum(); rowIndex++) {
+                    for (int rowIndex = sheetConfig.getDataBeginRowIndex(); rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                         Row dataRow = sheet.getRow(rowIndex);
                         if (dataRow == null) {
                             continue;
@@ -127,7 +128,11 @@ public class ExcelReader<T> extends AbstractExcel {
                                 value = converter.convert(cell, cellValue, cellValue.getClass());
                             } else {
                                 if (cellValue != null && !cellValue.equals("")) {
-                                    value = BaseTypeConverter.convert(cellValue, field.getType());
+                                    try {
+                                        value = BaseTypeConverter.convert(cellValue, field.getType());
+                                    } catch (Exception ignore) {
+
+                                    }
                                 }
                             }
                             if (value != null) {
@@ -163,10 +168,20 @@ public class ExcelReader<T> extends AbstractExcel {
     private void validateEntity(ExcelReaderConfig config, Integer sheetIndex, Map<String, ImportField> fieldMap, int rowIndex, Object entity) throws IllegalAccessException {
         if (config.isValidate()) {
             Map<String, List<String>> errorMessage = null;
+            PropertyMessageInterpolator propertyInterpolator = new PropertyMessageInterpolator(new PropertyMessageInterpolator.PropertyNameObtainHandler() {
+                @Override
+                public String obtain(String property) {
+                    ImportField importField = fieldMap.get(property);
+                    if (importField != null) {
+                        return importField.getColumnName();
+                    }
+                    return "";
+                }
+            });
             if (config.getValidateGroups() == null) {
-                errorMessage = ValidatorUtil.validate(entity, Default.class);
+                errorMessage = ValidatorUtil.validate(entity, propertyInterpolator, Default.class);
             } else {
-                errorMessage = ValidatorUtil.validate(entity, config.getValidateGroups());
+                errorMessage = ValidatorUtil.validate(entity, propertyInterpolator, config.getValidateGroups());
             }
             if (errorMessage != null && errorMessage.size() > 0) {
                 if (config.getValidateExcludeFields() != null && config.getValidateExcludeFields().size() > 0) {
@@ -179,14 +194,14 @@ public class ExcelReader<T> extends AbstractExcel {
                     validateResult.setSheetIndex(sheetIndex);
                     validateResult.setRow(rowIndex);
                     validateResult.setRowData(entity);
-                    for (Map.Entry<String, List<String>> errorMessageEntry : errorMessage.entrySet()) {
-                        ImportField importField = fieldMap.get(errorMessageEntry.getKey());
-                        if (importField != null) {
-                            for (int i = 0; i < errorMessageEntry.getValue().size(); i++) {
-                                errorMessageEntry.getValue().set(i,errorMessageEntry.getValue().get(i).replaceAll("\\$\\{名称\\}", importField.getColumnName()));
-                            }
-                        }
-                    }
+//                    for (Map.Entry<String, List<String>> errorMessageEntry : errorMessage.entrySet()) {
+//                        ImportField importField = fieldMap.get(errorMessageEntry.getKey());
+//                        if (importField != null) {
+//                            for (int i = 0; i < errorMessageEntry.getValue().size(); i++) {
+//                                errorMessageEntry.getValue().set(i, errorMessageEntry.getValue().get(i).replaceAll("\\{name\\}", importField.getColumnName()));
+//                            }
+//                        }
+//                    }
                     config.getValidateResults().add(validateResult);
                     if (validateMessageFields != null && validateMessageFields.size() > 0) {
                         String validateMessageSingle = errorMessage.values().stream()
@@ -202,7 +217,7 @@ public class ExcelReader<T> extends AbstractExcel {
                             } else if (List.class.isAssignableFrom(validateMessageField.getType())) {
                                 try {
                                     validateMessageField.set(entity, validateMessageList);
-                                }catch (Exception ignore){
+                                } catch (Exception ignore) {
 
                                 }
 

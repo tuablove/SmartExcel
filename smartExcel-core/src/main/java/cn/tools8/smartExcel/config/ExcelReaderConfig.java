@@ -73,10 +73,9 @@ public class ExcelReaderConfig {
         return validateGroups;
     }
 
-    public void setValidateGroups(Class<?>[] validateGroups) {
+    public void setValidateGroups(Class<?>... validateGroups) {
         this.validateGroups = validateGroups;
     }
-
     public List<ValidateResult> getValidateResults() {
         return validateResults;
     }

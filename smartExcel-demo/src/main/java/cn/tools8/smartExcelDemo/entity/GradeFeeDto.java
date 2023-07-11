@@ -20,7 +20,7 @@ import java.util.List;
 public class GradeFeeDto implements Serializable {
     @ExcelImport(names = {"学号","学生编号"})
     @ExcelExport(names = {"学费统计报表","个人信息","${sno}"})
-    @Max(value = 9999,message = "${名称}最大值不能超过9999 ${名称}")
+    @Max(value = 9999,message = "{name}最大值不能超过{value} ${名称}")
     private Integer number;
     @ExcelExport(names = {"学费统计报表","个人信息","姓名"})
     @ExcelStyle(autoSizeColumn = true)
@@ -32,7 +32,7 @@ public class GradeFeeDto implements Serializable {
     private String description;
     @ExcelExport(names = {"学费统计报表","费用","收入"})
     @ExcelImport(names ="收入")
-    @Min(value = 30000,message = "${名称}不能低于30000")
+    @Min(value = 30000,message = "{name}不能低于{value}")
     private BigDecimal income;
 
     @ExcelExport(names = {"学费统计报表","费用","支出"})
