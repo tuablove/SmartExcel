@@ -140,7 +140,7 @@ public class ExcelReader<T> extends AbstractExcel {
                                 filled = true;
                             }
                         }
-                        if (filled) {
+                        if (filled && (config.getRowIgnoreHandler() == null || !config.getRowIgnoreHandler().ignore(sheetIndex, rowIndex, entity))) {
                             validateEntity(config, sheetIndex, fieldMap, rowIndex, entity);
                             dataList.add((T) entity);
                         }

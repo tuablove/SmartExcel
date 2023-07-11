@@ -1,6 +1,7 @@
 package cn.tools8.smartExcel.config;
 
 import cn.tools8.smartExcel.entity.ValidateResult;
+import cn.tools8.smartExcel.handler.IReadRowIgnoreHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,11 @@ public class ExcelReaderConfig {
      * 验证结果列表
      */
     private List<ValidateResult> validateResults = new ArrayList<>();
+
+    /**
+     * 行数据忽略处理
+     */
+    private IReadRowIgnoreHandler rowIgnoreHandler;
 
     public String getPassword() {
         return password;
@@ -82,5 +88,13 @@ public class ExcelReaderConfig {
 
     public void setValidateResults(List<ValidateResult> validateResults) {
         this.validateResults = validateResults;
+    }
+
+    public IReadRowIgnoreHandler getRowIgnoreHandler() {
+        return rowIgnoreHandler;
+    }
+
+    public void setRowIgnoreHandler(IReadRowIgnoreHandler rowIgnoreHandler) {
+        this.rowIgnoreHandler = rowIgnoreHandler;
     }
 }
