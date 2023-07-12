@@ -47,8 +47,8 @@ public class ExcelReaderMap extends AbstractExcel {
      * @throws IOException
      */
     public List<Map<String, Object>> read(InputStream is, ExcelReaderConfig config) throws Exception{
-        config = ExcelReaderConfigUtils.validateConfig(config);
         try {
+            config = ExcelReaderConfigUtils.validateConfig(config);
             workbook = WorkbookFactory.create(is, config.getPassword());
             int sheetCount = workbook.getNumberOfSheets();
             List<Map<String, Object>> dataList = new ArrayList<>();

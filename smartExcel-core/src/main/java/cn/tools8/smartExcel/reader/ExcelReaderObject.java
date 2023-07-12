@@ -84,8 +84,8 @@ public class ExcelReaderObject<T> extends AbstractExcel {
      * @throws IllegalAccessException
      */
     public List<T> read(InputStream is, ExcelReaderConfig config) throws IOException, InstantiationException, IllegalAccessException {
-        config = ExcelReaderConfigUtils.validateConfig(config);
         try {
+            config = ExcelReaderConfigUtils.validateConfig(config);
             workbook = WorkbookFactory.create(is, config.getPassword());
             int sheetCount = workbook.getNumberOfSheets();
             List<T> dataList = new ArrayList<>();
