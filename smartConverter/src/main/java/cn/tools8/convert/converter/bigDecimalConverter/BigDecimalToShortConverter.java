@@ -5,13 +5,13 @@ import cn.tools8.convert.IConverter;
 import java.math.BigDecimal;
 
 /**
- * StringToInteger
+ * BigDecimal To Short
  *
  * @author tuaobin 2023/6/16$ 10:20$
  */
-public class BigDecimalToShortConverter implements IConverter {
+public class BigDecimalToShortConverter extends AbstractBigDecimalConverter implements IConverter {
     @Override
-    public Object convert(Object object) {
-        return ((BigDecimal) object).shortValue();
+    public Object doConvert(BigDecimal value) {
+        return value.shortValue();
     }
 }

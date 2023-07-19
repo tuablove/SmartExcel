@@ -10,9 +10,9 @@ import java.util.Date;
  *
  * @author tuaobin 2023/6/16$ 10:20$
  */
-public class BigDecimalToDateConverter implements IConverter {
+public class BigDecimalToDateConverter extends AbstractBigDecimalConverter implements IConverter {
     @Override
-    public Object convert(Object object) {
-        return new Date(((BigDecimal) object).longValue());
+    public Object doConvert(BigDecimal value) {
+        return new Date(value.longValue());
     }
 }

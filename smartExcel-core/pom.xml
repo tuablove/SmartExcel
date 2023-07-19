@@ -143,11 +143,11 @@
   <distributionManagement>
     <repository>
       <id>local-nexus</id>
-      <url>http://192.168.1.101:8081/repository/maven-releases/</url>
+      <url>http://localnexus:8081/repository/maven-releases/</url>
     </repository>
     <snapshotRepository>
       <id>local-nexus</id>
-      <url>http://192.168.1.101:8081/repository/maven-snapshots/</url>
+      <url>http://localnexus:8081/repository/maven-snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
 </project>

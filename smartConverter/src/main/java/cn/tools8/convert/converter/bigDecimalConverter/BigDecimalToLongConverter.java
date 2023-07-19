@@ -5,12 +5,13 @@ import cn.tools8.convert.IConverter;
 import java.math.BigDecimal;
 
 /**
- * StringToInteger
+ * BigDecimal To Long
  * @author tuaobin 2023/6/16$ 10:20$
  */
-public class BigDecimalToLongConverter implements IConverter {
+public class BigDecimalToLongConverter extends AbstractBigDecimalConverter implements IConverter {
+
     @Override
-    public Object convert(Object object) {
-        return ((BigDecimal) object).longValue();
+    public Object doConvert(BigDecimal value) {
+        return value.longValue();
     }
 }

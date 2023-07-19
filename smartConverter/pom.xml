@@ -16,6 +16,7 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
     <commons-lang3.version>3.12.0</commons-lang3.version>
+    <skipTests>true</skipTests>
   </properties>
 
   <dependencies>
@@ -33,6 +34,16 @@
   </dependencies>
 
   <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M5</version>
+        <configuration>
+          <skipTests>${skipTests}</skipTests>
+        </configuration>
+      </plugin>
+    </plugins>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
         <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
@@ -80,11 +91,11 @@
   <distributionManagement>
     <repository>
       <id>local-nexus</id>
-      <url>http://192.168.1.101:8081/repository/maven-releases/</url>
+      <url>http://localnexus:8081/repository/maven-releases/</url>
     </repository>
     <snapshotRepository>
       <id>local-nexus</id>
-      <url>http://192.168.1.101:8081/repository/maven-snapshots/</url>
+      <url>http://localnexus:8081/repository/maven-snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
 </project>

@@ -5,12 +5,12 @@ import cn.tools8.convert.IConverter;
 import java.math.BigDecimal;
 
 /**
- * StringToInteger
+ * BigDecimal To Float
  * @author tuaobin 2023/6/16$ 10:20$
  */
-public class BigDecimalToFloatConverter implements IConverter {
+public class BigDecimalToFloatConverter extends AbstractBigDecimalConverter implements IConverter {
     @Override
-    public Object convert(Object object) {
-        return ((BigDecimal) object).floatValue();
+    public Object doConvert(BigDecimal value) {
+        return value.floatValue();
     }
 }

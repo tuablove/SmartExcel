@@ -5,13 +5,13 @@ import cn.tools8.convert.IConverter;
 import java.math.BigDecimal;
 
 /**
- * StringToInteger
+ * BigDecimal To Byte
  *
  * @author tuaobin 2023/6/16$ 10:20$
  */
-public class BigDecimalToByteConverter implements IConverter {
+public class BigDecimalToByteConverter extends AbstractBigDecimalConverter implements IConverter {
     @Override
-    public Object convert(Object object) {
-        return (byte) ((BigDecimal) object).byteValueExact();
+    public Object doConvert(BigDecimal value) {
+        return value.byteValueExact();
     }
 }

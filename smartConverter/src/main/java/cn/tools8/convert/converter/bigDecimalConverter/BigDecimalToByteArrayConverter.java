@@ -7,17 +7,17 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * StringToInteger
+ * BigDecimal To ByteArray
  *
  * @author tuaobin 2023/6/16$ 10:20$
  */
-public class BigDecimalToByteArrayConverter implements IConverter {
+public class BigDecimalToByteArrayConverter extends AbstractBigDecimalConverter implements IConverter {
+
     @Override
-    public Object convert(Object object) {
-        BigDecimal num = ((BigDecimal) object);
-        int scale = num.scale();
-        int precision = num.precision();
-        byte[] unscaledValue = num.unscaledValue().toByteArray();
+    public Object doConvert(BigDecimal value) {
+        int scale = value.scale();
+        int precision = value.precision();
+        byte[] unscaledValue = value.unscaledValue().toByteArray();
         byte[] data = ByteBuffer.allocate(9)
                 .order(ByteOrder.BIG_ENDIAN)
                 .put((byte) scale)
