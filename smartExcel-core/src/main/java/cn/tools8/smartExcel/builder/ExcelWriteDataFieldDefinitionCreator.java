@@ -3,6 +3,7 @@ package cn.tools8.smartExcel.builder;
 import cn.tools8.smartExcel.annotaion.ExcelExport;
 import cn.tools8.smartExcel.annotaion.ExcelStyle;
 import cn.tools8.smartExcel.config.ExcelWriteConfig;
+import cn.tools8.smartExcel.config.ExcelWriteFieldConfig;
 import cn.tools8.smartExcel.entity.DynamicColumn;
 import cn.tools8.smartExcel.entity.WriteDataBase;
 import cn.tools8.smartExcel.entity.definition.ExcelStyleDefinition;
@@ -10,6 +11,7 @@ import cn.tools8.smartExcel.entity.definition.WriteDataFieldDefinition;
 import cn.tools8.smartExcel.exception.DataFieldRepeatError;
 import cn.tools8.smartExcel.handler.IWriteDataCellStyleHandler;
 import cn.tools8.smartExcel.handler.IWriteValueConverter;
+import org.apache.poi.ss.util.CellReference;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -29,7 +31,7 @@ public class ExcelWriteDataFieldDefinitionCreator {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public static  List<WriteDataFieldDefinition> createDataFieldDefinations(Class<?> clazz, Object writeDataBase, ExcelWriteConfig config) throws InstantiationException, IllegalAccessException {
+    public static List<WriteDataFieldDefinition> createDataFieldDefinations(Class<?> clazz, Object writeDataBase, ExcelWriteFieldConfig config) throws InstantiationException, IllegalAccessException {
         Set<String> includeFields = config.getIncludeFields();
         Set<String> excludeFields = config.getExcludeFields();
 
@@ -45,7 +47,12 @@ public class ExcelWriteDataFieldDefinitionCreator {
                 }
                 WriteDataFieldDefinition dataField = new WriteDataFieldDefinition();
                 dataField.setKey(fieldKey);
-                dataField.setOrder(excelExport.order());
+                if (excelExport.columnString() != null && !excelExport.columnString().equals("")) {
+                    int column = CellReference.convertColStringToIndex(excelExport.columnString());
+                    dataField.setOrder(column);
+                } else {
+                    dataField.setOrder(excelExport.order());
+                }
                 dataField.setTitleNames(Arrays.asList(excelExport.names()));
                 if (!excelExport.converter().isInterface() && !Modifier.isAbstract(excelExport.converter().getModifiers())) {
                     IWriteValueConverter newInstance = excelExport.converter().newInstance();

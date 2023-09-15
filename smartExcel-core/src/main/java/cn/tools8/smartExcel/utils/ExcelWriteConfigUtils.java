@@ -1,6 +1,7 @@
 package cn.tools8.smartExcel.utils;
 
 import cn.tools8.smartExcel.config.ExcelWriteConfig;
+import cn.tools8.smartExcel.config.ExcelWriteTemplateConfig;
 
 import java.util.Objects;
 
@@ -21,6 +22,24 @@ public class ExcelWriteConfigUtils {
         }
         if(Objects.isNull(config.getDefaultSheetName())){
             throw new IllegalArgumentException("defaultSheetName is empty");
+        }
+        if(Objects.isNull(config.getFilePath())){
+            throw new IllegalArgumentException("out put filePath is empty");
+        }
+        if(Objects.isNull(config.getExcelType())){
+            throw new IllegalArgumentException("excelType is empty");
+        }
+    }
+
+    /**
+     * 验证配置
+     *
+     * @param config
+     * @return
+     */
+    public static void validateConfig(ExcelWriteTemplateConfig config) {
+        if (config == null) {
+            throw new IllegalArgumentException("ExcelWriteConfig is null");
         }
         if(Objects.isNull(config.getFilePath())){
             throw new IllegalArgumentException("out put filePath is empty");

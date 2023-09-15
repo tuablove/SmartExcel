@@ -14,11 +14,15 @@ import java.util.Set;
  *
  * @author tuaobin 2023/6/15 10:41
  */
-public class ExcelWriteConfig extends ExcelWriteFieldConfig {
+public class ExcelWriteTemplateConfig extends ExcelWriteFieldConfig{
     /**
      * 默认2007格式的excel ,false为97格式
      */
     private ExcelTypeEnum excelType = ExcelTypeEnum.EXCEL2007STREAM;
+    /**
+     * 模板地址
+     */
+    private String templateFilePath;
     /**
      * 默认sheet名称
      */
@@ -29,14 +33,19 @@ public class ExcelWriteConfig extends ExcelWriteFieldConfig {
     private IWriteGenericCellStyleHandler genericCellStyleHandler;
 
     /**
-     * 指定标题格的样式
+     * 数据开始的行索引
      */
-    private IWriteTitleCellStyleHandler titleCellStyleHandler;
-    /**
-     * 标题表达式
-     */
-    private IWriteTitleExpressionHandler titleExpressionHandler;
+    private Integer dataBeginRowIndex;
 
+
+
+    public String getTemplateFilePath() {
+        return templateFilePath;
+    }
+
+    public void setTemplateFilePath(String templateFilePath) {
+        this.templateFilePath = templateFilePath;
+    }
 
     public ExcelTypeEnum getExcelType() {
         return excelType;
@@ -62,21 +71,11 @@ public class ExcelWriteConfig extends ExcelWriteFieldConfig {
         this.genericCellStyleHandler = genericCellStyleHandler;
     }
 
-    public IWriteTitleCellStyleHandler getTitleCellStyleHandler() {
-        return titleCellStyleHandler;
+    public Integer getDataBeginRowIndex() {
+        return dataBeginRowIndex;
     }
 
-    public void setTitleCellStyleHandler(IWriteTitleCellStyleHandler titleCellStyleHandler) {
-        this.titleCellStyleHandler = titleCellStyleHandler;
+    public void setDataBeginRowIndex(Integer dataBeginRowIndex) {
+        this.dataBeginRowIndex = dataBeginRowIndex;
     }
-
-    public IWriteTitleExpressionHandler getTitleExpressionHandler() {
-        return titleExpressionHandler;
-    }
-
-    public void setTitleExpressionHandler(IWriteTitleExpressionHandler titleExpressionHandler) {
-        this.titleExpressionHandler = titleExpressionHandler;
-    }
-
-
 }

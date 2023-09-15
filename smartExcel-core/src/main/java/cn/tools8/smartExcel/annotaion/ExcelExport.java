@@ -25,6 +25,10 @@ public @interface ExcelExport {
     int order() default 0;
 
     /**
+     * CellReference.convertColStringToIndex(sCol);
+     */
+    String columnString() default "";
+    /**
      * 数据转换接口
      * @return
      */
