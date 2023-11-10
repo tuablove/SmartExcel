@@ -1,6 +1,7 @@
 package cn.tools8.smartExcel.config;
 
 import cn.tools8.smartExcel.enums.ExcelTypeEnum;
+import cn.tools8.smartExcel.handler.IWriteDataCellInitializeStyleHandler;
 import cn.tools8.smartExcel.handler.IWriteGenericCellStyleHandler;
 import cn.tools8.smartExcel.handler.IWriteTitleCellStyleHandler;
 import cn.tools8.smartExcel.handler.IWriteTitleExpressionHandler;
@@ -37,6 +38,10 @@ public class ExcelWriteConfig extends ExcelWriteFieldConfig {
      */
     private IWriteTitleExpressionHandler titleExpressionHandler;
 
+    /**
+     * 单元格初始化样式
+     */
+    private IWriteDataCellInitializeStyleHandler dataCellInitializeStyleHandler;
 
     public ExcelTypeEnum getExcelType() {
         return excelType;
@@ -78,5 +83,11 @@ public class ExcelWriteConfig extends ExcelWriteFieldConfig {
         this.titleExpressionHandler = titleExpressionHandler;
     }
 
+    public IWriteDataCellInitializeStyleHandler getDataCellInitializeStyleHandler() {
+        return dataCellInitializeStyleHandler;
+    }
 
+    public void setDataCellInitializeStyleHandler(IWriteDataCellInitializeStyleHandler dataCellInitializeStyleHandler) {
+        this.dataCellInitializeStyleHandler = dataCellInitializeStyleHandler;
+    }
 }

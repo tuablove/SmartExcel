@@ -21,7 +21,7 @@ public class ExcelWriteConfigUtils {
             throw new IllegalArgumentException("ExcelWriteConfig is null");
         }
         if(Objects.isNull(config.getDefaultSheetName())){
-            throw new IllegalArgumentException("defaultSheetName is empty");
+            config.setDefaultSheetName("Sheet1");
         }
         if(Objects.isNull(config.getFilePath())){
             throw new IllegalArgumentException("out put filePath is empty");

@@ -31,7 +31,7 @@ public class ExcelWriteDataFieldDefinitionCreator {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public static List<WriteDataFieldDefinition> createDataFieldDefinations(Class<?> clazz, Object writeDataBase, ExcelWriteFieldConfig config) throws InstantiationException, IllegalAccessException {
+    public static List<WriteDataFieldDefinition> createDataFieldDefinitions(Class<?> clazz, Object writeDataBase, ExcelWriteFieldConfig config) throws InstantiationException, IllegalAccessException {
         Set<String> includeFields = config.getIncludeFields();
         Set<String> excludeFields = config.getExcludeFields();
 
@@ -72,6 +72,9 @@ public class ExcelWriteDataFieldDefinitionCreator {
                     styleDefinition.setAutoSizeColumn(excelStyle.autoSizeColumn());
                     dataField.setStyleDefinition(styleDefinition);
                 }
+                if (dataField.getOrder() == null) {
+                    dataField.setOrder(0);
+                }
                 keys.add(dataField.getKey());
                 dataFields.add(dataField);
             }
@@ -87,11 +90,14 @@ public class ExcelWriteDataFieldDefinitionCreator {
                 }
                 WriteDataFieldDefinition dataField = new WriteDataFieldDefinition();
                 dataField.copyFrom(dynamicColumn);
-                if (dynamicColumn.getOrder() == null) {
+                if (dynamicColumn.getOrder() == null && dataFields.size() > 0) {
                     dataField.setOrder(dataFields.stream().map(WriteDataFieldDefinition::getOrder).max(Integer::compare).get() + 1);
                 }
                 if (dynamicColumn.getWriteValueConverter() != null && !dynamicColumn.getWriteValueConverter().isInterface() && !Modifier.isAbstract(dynamicColumn.getWriteValueConverter().getModifiers())) {
                     dataField.setWriteValueConverter(dynamicColumn.getWriteValueConverter().newInstance());
+                }
+                if (dataField.getOrder() == null) {
+                    dataField.setOrder(0);
                 }
                 dataFields.add(dataField);
             }

@@ -54,7 +54,7 @@ public class ExcelWriterTemplateSimple<T> extends AbstractExcel implements IExce
             //默认样式初始化
             genericCellStyleManager = GenericCellStyleCreator.create(this, config.getGenericCellStyleHandler());
             expressionManager.setDataList(dataList);
-            List<WriteDataFieldDefinition> dataFields = ExcelWriteDataFieldDefinitionCreator.createDataFieldDefinations(clazz, dataList.size() > 0 ? dataList.get(0) : null, config);
+            List<WriteDataFieldDefinition> dataFields = ExcelWriteDataFieldDefinitionCreator.createDataFieldDefinitions(clazz, dataList.size() > 0 ? dataList.get(0) : null, config);
             Map<Integer, WriteDataFieldDefinition> dataFieldsMap = dataFields.stream().collect(Collectors.toMap(WriteDataFieldDefinition::getOrder, item -> item));
             Sheet sheet = workbook.getSheetAt(0);
             int rowIndex = config.getDataBeginRowIndex();

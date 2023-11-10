@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -26,42 +27,59 @@ public class ExcelReaderTitle extends AbstractExcel {
     private static final Logger logger = LoggerFactory.getLogger(ExcelReaderTitle.class);
 
     /**
-     * 读取excel
+     * 读取excel标题行
+     *
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    public List<String> read(String file) throws Exception {
+        return read(new FileInputStream(file));
+    }
+
+    /**
+     * 读取excel标题行
+     *
+     * @param file
+     * @param password
+     * @param titleRowIndex
+     * @return
+     * @throws Exception
+     */
+    public List<String> read(String file, String password, int titleRowIndex) throws Exception {
+        return read(new FileInputStream(file), password, titleRowIndex);
+    }
+
+    /**
+     * 读取excel标题行
      *
      * @param is excel文件数据流
      * @return
      * @throws IOException
      */
     public List<String> read(InputStream is) throws Exception {
-        return read(is, null);
+        return read(is, null, 0);
     }
 
     /**
-     * 读取excel
+     * 读取excel标题行
      *
-     * @param is     excel文件数据流
-     * @param config 读取文件配置
+     * @param is            excel文件数据流
+     * @param password      excel密码
+     * @param titleRowIndex 标题行索引
      * @return
      * @throws IOException
      */
-    public List<String> read(InputStream is, ExcelReaderConfig config) throws Exception {
+    public List<String> read(InputStream is, String password, int titleRowIndex) throws Exception {
         List<String> titles = new ArrayList<>();
         try {
-            config = ExcelReaderConfigUtils.validateConfig(config);
-            workbook = WorkbookFactory.create(is, config.getPassword());
+            workbook = WorkbookFactory.create(is, password);
             int sheetCount = workbook.getNumberOfSheets();
-            ExcelReaderSheetConfig sheetConfig = config.getSheetConfigs().get(0);
-            if (sheetConfig.getSheetIndexBegin() >= sheetCount) {
+            if (sheetCount == 0) {
                 return titles;
             }
-            if (sheetConfig.getSheetIndexEnd() == null) {
-                sheetConfig.setSheetIndexEnd(sheetConfig.getSheetIndexBegin());
-            }
-            sheetConfig.setSheetIndexEnd(Math.min(sheetConfig.getSheetIndexEnd(), sheetCount - 1));
-            List<Integer> indexList = ExcelReaderConfigUtils.getSheetIndexList(workbook, sheetConfig);
-            indexList.sort(Integer::compareTo);
-            Sheet sheet = workbook.getSheetAt(indexList.get(0));
-            Row titleRow = sheet.getRow(sheetConfig.getTitleRowIndex());
+            Sheet sheet = workbook.getSheetAt(0);
+            Row titleRow = sheet.getRow(titleRowIndex);
             short minColIx = titleRow.getFirstCellNum();
             short maxColIx = titleRow.getLastCellNum();
             for (short column = minColIx; column < maxColIx; column++) {

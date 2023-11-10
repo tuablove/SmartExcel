@@ -1,9 +1,6 @@
 package cn.tools8.smartExcel;
 
-import cn.tools8.smartExcel.builder.ExcelWriteDataFieldDefinitionCreator;
-import cn.tools8.smartExcel.builder.GenericCellStyleCreator;
-import cn.tools8.smartExcel.builder.TitleCellStyleCreator;
-import cn.tools8.smartExcel.builder.WorkbookCreator;
+import cn.tools8.smartExcel.builder.*;
 import cn.tools8.smartExcel.config.ExcelWriteConfig;
 import cn.tools8.smartExcel.entity.CellData;
 import cn.tools8.smartExcel.entity.WriteDataBase;
@@ -38,11 +35,14 @@ import java.util.List;
  *
  * @author tuaobin 2023/6/15 10:41
  */
-public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCreator {
+public class ExcelWriter<T> extends AbstractExcel {
     private static final Logger logger = LoggerFactory.getLogger(ExcelWriter.class);
+    private DefaultCellStyleCreator defaultCellStyleCreator;
     private ExcelWriteCellStyleManager genericCellStyleManager;
     private ExcelWriteCellStyleManager titleCellStyleManager;
-    private final ExcelWriteCellStyleManager dataCellStyleManager = new ExcelWriteCellStyleManager();
+    private DataCellStyleCreator dataCellStyleCreator;
+    private ExcelWriteCellStyleManager dataCellStyleManager;
+
     private final ExpressionManager expressionManager = new ExpressionManager<T>();
 
     /**
@@ -56,14 +56,18 @@ public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCrea
         ExcelWriteConfigUtils.validateConfig(config);
         try {
             workbook = WorkbookCreator.createWorkbook(config);
+            defaultCellStyleCreator = new DefaultCellStyleCreator(workbook);
             //默认样式初始化
-            genericCellStyleManager = GenericCellStyleCreator.create(this, config.getGenericCellStyleHandler());
+            genericCellStyleManager = GenericCellStyleCreator.create(defaultCellStyleCreator, config.getGenericCellStyleHandler());
             //标题样式初始化
-            titleCellStyleManager = TitleCellStyleCreator.create(this, config.getTitleCellStyleHandler());
+            titleCellStyleManager = new TitleCellStyleCreator().create(defaultCellStyleCreator, genericCellStyleManager, config.getTitleCellStyleHandler());
+            //数据样式初始化
+            dataCellStyleCreator = new DataCellStyleCreator();
+            dataCellStyleManager = dataCellStyleCreator.create(defaultCellStyleCreator, genericCellStyleManager, config.getDataCellInitializeStyleHandler());
             //表达式初始化
             expressionManager.setTitleExpressionHandler(config.getTitleExpressionHandler());
             expressionManager.setDataList(dataList);
-            List<WriteDataFieldDefinition> mainDataFields = ExcelWriteDataFieldDefinitionCreator.createDataFieldDefinations(clazz, dataList.size() > 0 ? dataList.get(0) : null, config);
+            List<WriteDataFieldDefinition> mainDataFields = ExcelWriteDataFieldDefinitionCreator.createDataFieldDefinitions(clazz, dataList.size() > 0 ? dataList.get(0) : null, config);
             List<WriteDataFieldDefinition> childDataFields = getChildrenDataFieldDefinitions(dataList, config);
             int maxTitleRowCount = calculateMaxTitleRowCount(mainDataFields, childDataFields);
             Sheet sheet = workbook.createSheet(config.getDefaultSheetName());
@@ -109,6 +113,7 @@ public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCrea
 
     /**
      * 获取子元素的字段定义
+     *
      * @param dataList
      * @param config
      * @return
@@ -127,7 +132,7 @@ public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCrea
                 }
             }
             if (child != null) {
-                childDataFields = ExcelWriteDataFieldDefinitionCreator.createDataFieldDefinations(child.getClass(), child, config);
+                childDataFields = ExcelWriteDataFieldDefinitionCreator.createDataFieldDefinitions(child.getClass(), child, config);
             }
         }
         if (childDataFields == null) {
@@ -138,6 +143,7 @@ public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCrea
 
     /**
      * 写入子元素
+     *
      * @param mainDataFields
      * @param childDataFields
      * @param maxChildrenCount
@@ -221,7 +227,7 @@ public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCrea
         CellStyle defaultCellStyle = genericCellStyleManager.getCellStyle(GenericStyleTypeEnum.CONTENT.getType());
         if (styleDefinition != null) {
             if (styleDefinition.getCellStyleHandler() != null) {
-                cellStyle = styleDefinition.getCellStyleHandler().onCreating(new CellData(cell, dataBase, originValue, cellValue, defaultCellStyle, dataCellStyleManager, this));
+                cellStyle = styleDefinition.getCellStyleHandler().onCreating(new CellData(cell, dataBase, originValue, cellValue, defaultCellStyle, dataCellStyleManager, dataCellStyleCreator));
             } else {
                 String dataFormatStr = styleDefinition.getDataFormat();
                 if (dataFormatStr != null && !dataFormatStr.equals("")) {
@@ -243,9 +249,9 @@ public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCrea
     private CellStyle generateDataFormatCellStyle(String dataFormatStr, CellStyle defaultCellStyle) {
         CellStyle newCellStyle = dataCellStyleManager.getCellStyle(dataFormatStr);
         if (newCellStyle == null) {
-            newCellStyle = newCellStyle();
+            newCellStyle = defaultCellStyleCreator.newCellStyle();
             newCellStyle.cloneStyleFrom(defaultCellStyle);
-            DataFormat dataFormat = newDataFormat();
+            DataFormat dataFormat = defaultCellStyleCreator.newDataFormat();
             short formatIndex = dataFormat.getFormat(dataFormatStr);
             newCellStyle.setDataFormat(formatIndex);
             dataCellStyleManager.addCellStyle(dataFormatStr, newCellStyle);
@@ -300,7 +306,10 @@ public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCrea
                     cellStyle = genericCellStyleManager.getCellStyle(GenericStyleTypeEnum.TITLE.getType());
                 }
                 if (expressionManager.hasExpression(titleName)) {
-                    titleName = expressionManager.parse(titleName).toString();
+                    Object parseName = expressionManager.parse(titleName);
+                    if (parseName != null) {
+                        titleName = parseName.toString();
+                    }
                 }
                 cell.setCellValue(titleName);
                 cell.setCellStyle(cellStyle);
@@ -339,7 +348,9 @@ public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCrea
             }
         }
         int lastColumn = mainDataFields.size() + maxChildrenCount * childDataFields.size() - 1;
-        ExcelMergeUtils.mergeRange(sheet, new CellRangeAddress(0, maxTitleRowCount - 1, 0, lastColumn));
+        if (!(maxTitleRowCount - 1 < 0 || lastColumn < 0)) {
+            ExcelMergeUtils.mergeRange(sheet, new CellRangeAddress(0, maxTitleRowCount - 1, 0, lastColumn));
+        }
         return maxChildrenCount;
     }
 
@@ -356,21 +367,5 @@ public class ExcelWriter<T> extends AbstractExcel implements IExcelCellStyleCrea
      */
     public ExcelWriter(Class<T> clazz) {
         this.clazz = clazz;
-    }
-
-
-    @Override
-    public CellStyle newCellStyle() {
-        return workbook.createCellStyle();
-    }
-
-    @Override
-    public Font newCellFont() {
-        return workbook.createFont();
-    }
-
-    @Override
-    public DataFormat newDataFormat() {
-        return workbook.createDataFormat();
     }
 }

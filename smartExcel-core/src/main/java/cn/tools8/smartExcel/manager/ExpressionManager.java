@@ -94,8 +94,13 @@ public class ExpressionManager<T> implements IExpressionCreator {
      * @throws
      */
     public Object parse(String expression) {
-        JxltEngine.Expression engineExpression = parseExpression(expression);
-        return engineExpression.evaluate(context);
+        try {
+            JxltEngine.Expression engineExpression = parseExpression(expression);
+            return engineExpression.evaluate(context);
+        } catch (Exception e) {
+            logger.warn(String.format("manager.ExpressionManager.parse(%s)", expression), e);
+            return null;
+        }
     }
 
     /**

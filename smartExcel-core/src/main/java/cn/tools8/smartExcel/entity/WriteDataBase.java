@@ -25,6 +25,59 @@ public class WriteDataBase extends ArrayList<DynamicColumn> implements Serializa
         this.writeDateChildren = writeDateChildren;
     }
 
+    public WriteDataBase() {
+
+    }
+
+    public WriteDataBase(Collection<? extends DynamicColumn> c) {
+        this.addAll(c);
+    }
+
+    /**
+     * 添加
+     *
+     * @param c
+     * @return
+     */
+    public boolean addMulti(DynamicColumn... c) {
+        synchronized (this) {
+            this.addAll(Arrays.asList(c));
+            return true;
+        }
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends DynamicColumn> c) {
+        synchronized (this) {
+            for (DynamicColumn dynamicColumn : c) {
+                this.add(dynamicColumn);
+            }
+            return true;
+        }
+    }
+
+    @Override
+    public void add(int index, DynamicColumn element) {
+        synchronized (this) {
+            int lastIndex = this.size();
+            add(element);
+            DynamicColumn old = this.set(index, element);
+            this.set(lastIndex, old);
+        }
+    }
+
+    @Override
+    public boolean addAll(int index, Collection<? extends DynamicColumn> c) {
+        synchronized (this) {
+            int i = 0;
+            for (DynamicColumn dynamicColumn : c) {
+                add(index + i, dynamicColumn);
+                i += 1;
+            }
+            return true;
+        }
+    }
+
     @Override
     public boolean add(DynamicColumn dynamicColumn) {
         if (dynamicColumn == null) {
@@ -67,21 +120,25 @@ public class WriteDataBase extends ArrayList<DynamicColumn> implements Serializa
     }
 
     /**
-     * '
      * 是否存在指定的field或key
      *
      * @param key
      * @return
      */
     private boolean exist(String key) {
-        try {
-            this.getClass().getDeclaredField(key);
+        DynamicColumn dynamicColumn = getDynamicColumn(key);
+        if (dynamicColumn != null) {
             return true;
-        } catch (NoSuchFieldException ignore) {
-            return getDynamicColumn(key) != null;
-        } catch (Exception ignore) {
+        } else {
+            try {
+                this.getClass().getDeclaredField(key);
+                return true;
+            } catch (NoSuchFieldException ignore) {
+                return false;
+            } catch (Exception ignore) {
+            }
+            return false;
         }
-        return false;
     }
 
     /**
@@ -139,7 +196,7 @@ public class WriteDataBase extends ArrayList<DynamicColumn> implements Serializa
      * @throws IllegalAccessException
      */
     public void cloneDynamicColumnTo(WriteDataBase base) throws InstantiationException, IllegalAccessException {
-        if (this.size() > 0) {
+        if (base != null && this.size() > 0) {
             for (DynamicColumn dynamicColumn : this) {
                 DynamicColumn column = dynamicColumn.deepClone();
                 column.setValue(null);
@@ -147,6 +204,55 @@ public class WriteDataBase extends ArrayList<DynamicColumn> implements Serializa
             }
         }
 
+    }
+
+    /**
+     * 从别的对象拷贝动态对象到当前对象
+     *
+     * @param source
+     */
+    public void cloneDynamicColumnFrom(WriteDataBase source) {
+        if (source != null && source.size() > 0) {
+            for (DynamicColumn dynamicColumn : source) {
+                DynamicColumn column = dynamicColumn.deepClone();
+                column.setValue(null);
+                this.add(column);
+            }
+        }
+    }
+
+    /**
+     * 设置值
+     *
+     * @param key
+     * @param value
+     */
+    public void set(String key, Object value) {
+        DynamicColumn dynamicColumn = getDynamicColumn(key);
+        if (dynamicColumn != null) {
+            dynamicColumn.setValue(value);
+        } else {
+            try {
+                Field declaredField = this.getClass().getDeclaredField(key);
+                declaredField.setAccessible(true);
+                declaredField.set(this, value);
+            } catch (Exception ignore) {
+
+            }
+        }
+    }
+
+    /**
+     * 直接导入map值
+     *
+     * @param map
+     */
+    public void set(Map<String, Object> map) {
+        if (map != null) {
+            for (Map.Entry<String, Object> objectEntry : map.entrySet()) {
+                set(objectEntry.getKey(), objectEntry.getValue());
+            }
+        }
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Unit test for simple App.
+ * 读取excel的数据行到map
  */
 public class ReadToMapTest {
     public static void main(String[] args) throws Exception {

@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.util.List;
 
 /**
- * Unit test for simple App.
+ * 只读取excel的标题行
  */
 public class ReadTitleTest {
     public static void main(String[] args) throws Exception {

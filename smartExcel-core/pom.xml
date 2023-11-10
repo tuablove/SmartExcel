@@ -15,6 +15,15 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <poi-ooxml.version>5.2.0</poi-ooxml.version>
+    <poi-ooxml-schemas.version>4.1.2</poi-ooxml-schemas.version>
+    <poi-scratchpad.version>5.2.3</poi-scratchpad.version>
+    <jxls-poi.version>2.12.0</jxls-poi.version>
+    <commons-jexl3.version>3.3</commons-jexl3.version>
+    <javax.el-api.version>3.0.0</javax.el-api.version>
+    <jakarta.el.version>3.0.4</jakarta.el.version>
+    <jakarta.validation-api.version>2.0.2</jakarta.validation-api.version>
+    <hibernate-validator.version>6.1.7.Final</hibernate-validator.version>
     <skipTests>true</skipTests>
   </properties>
 
@@ -23,49 +32,38 @@
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml</artifactId>
-      <version>5.2.0</version>
+      <version>${poi-ooxml.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml-schemas</artifactId>
-      <version>4.1.2</version>
+      <version>${poi-ooxml-schemas.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-scratchpad</artifactId>
-      <version>5.2.3</version>
+      <version>${poi-scratchpad.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jxls</groupId>
       <artifactId>jxls-poi</artifactId>
-      <version>2.12.0</version>
+      <version>${jxls-poi.version}</version>
     </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>cn.tools8</groupId>
-      <artifactId>smartConverter</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-jexl3</artifactId>
-      <version>3.3</version>
+      <version>${commons-jexl3.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.el</groupId>
       <artifactId>javax.el-api</artifactId>
-      <version>3.0.0</version>
+      <version>${javax.el-api.version}</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>jakarta.el</artifactId>
-      <version>3.0.4</version>
+      <version>${jakarta.el.version}</version>
     </dependency>
     <!-- Validation -->
 <!--    <dependency>-->
@@ -76,12 +74,24 @@
     <dependency>
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
-      <version>2.0.2</version>
+      <version>${jakarta.validation-api.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <version>6.1.7.Final</version>
+      <version>${hibernate-validator.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>cn.tools8</groupId>
+      <artifactId>smartConverter</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
