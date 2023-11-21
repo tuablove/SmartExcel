@@ -4,6 +4,7 @@ import cn.tools8.smartExcel.builder.ExcelWriteDataFieldDefinitionCreator;
 import cn.tools8.smartExcel.builder.GenericCellStyleCreator;
 import cn.tools8.smartExcel.config.ExcelWriteBaseConfig;
 import cn.tools8.smartExcel.config.ExcelWriteTemplateConfig;
+import cn.tools8.smartExcel.entity.CellOriginData;
 import cn.tools8.smartExcel.entity.CellData;
 import cn.tools8.smartExcel.entity.WriteDataBase;
 import cn.tools8.smartExcel.entity.definition.ExcelStyleDefinition;
@@ -151,7 +152,7 @@ public class ExcelWriterTemplateSimple<T> extends AbstractExcel implements IExce
     private void setCellValueStyle(Object dataBase, WriteDataFieldDefinition dataField, Cell cell, Object originValue, CellStyle defaultCellStyle) {
         Object cellValue = null;
         if (dataField.getWriteValueConverter() != null) {
-            cellValue = dataField.getWriteValueConverter().convert(cell, originValue, originValue == null ? null : originValue.getClass());
+            cellValue = dataField.getWriteValueConverter().convert(new CellOriginData(cell, dataBase, originValue, originValue == null ? null : originValue.getClass()));
         } else {
             cellValue = originValue;
         }

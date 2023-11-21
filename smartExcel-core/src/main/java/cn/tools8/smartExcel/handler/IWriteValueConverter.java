@@ -1,6 +1,6 @@
 package cn.tools8.smartExcel.handler;
 
-import org.apache.poi.ss.usermodel.Cell;
+import cn.tools8.smartExcel.entity.CellOriginData;
 
 /**
  * 数值转换
@@ -9,10 +9,8 @@ import org.apache.poi.ss.usermodel.Cell;
 public interface IWriteValueConverter {
     /**
      * 转换
-     * @param cell  单元格
      * @param cellValue 数值
-     * @param valueType 数据类型
      * @return
      */
-    Object convert(Cell cell,Object cellValue,Class<?> valueType);
+    Object convert(CellOriginData cellValue);
 }

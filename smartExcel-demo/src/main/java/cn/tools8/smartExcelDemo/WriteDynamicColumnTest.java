@@ -73,7 +73,7 @@ public class WriteDynamicColumnTest {
         dataList.add(item2);
 
 
-        for (int i = 0; i < 30000; i++) {
+        for (int i = 0; i < 1000000; i++) {
             GradeFeeDynamicColumnDto itemRandom = (GradeFeeDynamicColumnDto) BeanUtils.cloneBean(item);
             item.cloneDynamicColumnTo(itemRandom);
             itemRandom.setName(itemRandom.getName() + i);

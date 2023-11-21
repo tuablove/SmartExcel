@@ -2,12 +2,12 @@ package cn.tools8.smartExcel;
 
 import cn.tools8.smartExcel.builder.*;
 import cn.tools8.smartExcel.config.ExcelWriteConfig;
+import cn.tools8.smartExcel.entity.CellOriginData;
 import cn.tools8.smartExcel.entity.CellData;
 import cn.tools8.smartExcel.entity.WriteDataBase;
 import cn.tools8.smartExcel.entity.definition.ExcelStyleDefinition;
 import cn.tools8.smartExcel.entity.definition.WriteDataFieldDefinition;
 import cn.tools8.smartExcel.enums.GenericStyleTypeEnum;
-import cn.tools8.smartExcel.interfaces.IExcelCellStyleCreator;
 import cn.tools8.smartExcel.manager.AutoSizeColumnManager;
 import cn.tools8.smartExcel.manager.ExcelWriteCellStyleManager;
 import cn.tools8.smartExcel.manager.ExpressionManager;
@@ -217,7 +217,7 @@ public class ExcelWriter<T> extends AbstractExcel {
     private void setCellValueStyle(Object dataBase, WriteDataFieldDefinition dataField, Cell cell, Object originValue) {
         Object cellValue = null;
         if (dataField.getWriteValueConverter() != null) {
-            cellValue = dataField.getWriteValueConverter().convert(cell, originValue, originValue == null ? null : originValue.getClass());
+            cellValue = dataField.getWriteValueConverter().convert(new CellOriginData(cell, dataBase, originValue, originValue == null ? null : originValue.getClass()));
         } else {
             cellValue = originValue;
         }
