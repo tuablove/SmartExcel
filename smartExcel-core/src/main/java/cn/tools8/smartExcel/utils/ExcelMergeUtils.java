@@ -1,9 +1,15 @@
 package cn.tools8.smartExcel.utils;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Sheet;
+import cn.tools8.smartExcel.builder.WorkbookCreator;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -74,6 +80,70 @@ public class ExcelMergeUtils {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * 垂向合并指定sheet中指定区域的表格
+     *
+     * @param sheet
+     * @param range
+     */
+    public static int mergeRangeVertical(Sheet sheet, CellRangeAddress range) {
+        int mergedLastRow = -1;
+        int mergeRowCount = -1;
+        Object cellValue = null;
+        for (int row = range.getFirstRow(); row <= range.getLastRow(); row++) {
+            mergeRowCount = -1;
+            for (int column = range.getFirstColumn(); column <= range.getLastColumn(); column++) {
+                cellValue = getSheetCellValue(sheet, row, column);
+                if (cellValue == null) {
+                    continue;
+                }
+                int nextRow = row + 1;
+                for (; nextRow <= Math.min(range.getLastRow(), mergeRowCount == -1 ? range.getLastRow() : row + mergeRowCount); nextRow++) {
+                    Object nextCellValue = getSheetCellValue(sheet, nextRow, column);
+                    if (!cellValue.equals(nextCellValue)) {
+                        break;
+                    }
+                }
+                if (mergeRowCount == -1) {
+                    mergeRowCount = nextRow - row - 1;
+                } else {
+                    mergeRowCount = Math.min(mergeRowCount, nextRow - row - 1);
+                }
+            }
+            if (mergeRowCount > 0) {
+                for (int column = range.getFirstColumn(); column <= range.getLastColumn(); column++) {
+                    mergedLastRow = row + mergeRowCount;
+                    sheet.addMergedRegion(new CellRangeAddress(row, mergedLastRow, column, column));
+                }
+                row += mergeRowCount;
+            }
+        }
+        return mergedLastRow;
+    }
+
+    private static Object getSheetCellValue(Sheet sheet, int row, int column) {
+        Row dataRow = sheet.getRow(row);
+        if (dataRow == null) {
+            return null;
+        }
+        Cell cell = dataRow.getCell(column);
+        Object cellValue = null;
+        if (cell != null) {
+            cellValue = CellUtils.getCellValue(cell);
+        }
+        return cellValue;
+    }
+
+    public static void main(String[] args) throws IOException {
+        Workbook workbook = WorkbookFactory.create(new File("/Users/tobin/Downloads/送审汇总表_2023-11-23T11_21_21.536+08_00.xlsx"));
+        Sheet sheet = workbook.getSheetAt(0);
+        mergeRangeVertical(sheet, new CellRangeAddress(1, sheet.getLastRowNum(), 0, 10));
+        try (OutputStream stream = new FileOutputStream("/Users/tobin/Downloads/送审汇总表_2023-11-23T11_21_21.536+08_00_merge.xlsx")) {
+            workbook.write(stream);
+            stream.flush();
         }
     }
 

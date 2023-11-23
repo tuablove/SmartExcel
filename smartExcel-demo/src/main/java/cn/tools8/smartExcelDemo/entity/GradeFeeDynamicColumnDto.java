@@ -4,6 +4,7 @@ import cn.tools8.smartExcel.annotaion.ExcelExport;
 import cn.tools8.smartExcel.annotaion.ExcelImport;
 import cn.tools8.smartExcel.annotaion.ExcelStyle;
 import cn.tools8.smartExcel.entity.WriteDataBase;
+import cn.tools8.smartExcel.enums.ExcelMergeTypeEnum;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -15,14 +16,16 @@ import java.util.Date;
 public class GradeFeeDynamicColumnDto extends WriteDataBase implements Serializable {
     @ExcelImport(names = {"学号","学生编号"})
     @ExcelExport(names = {"学费统计报表","个人信息","${sno}"})
+    @ExcelStyle(autoSizeColumn = true,mergeType = ExcelMergeTypeEnum.VERTICAL_ALL)
 //    @ExcelExport(names = {"学费统计报表","学费统计报表","学费统计报表"})
     private Integer number;
     @ExcelExport(names = {"学费统计报表","个人信息","姓名"})
-    @ExcelStyle(autoSizeColumn = true)
+    @ExcelStyle(autoSizeColumn = true,mergeType = ExcelMergeTypeEnum.VERTICAL_ALL)
     @ExcelImport(names ="姓名")
     private String name;
     @ExcelExport(names = {"学费统计报表","费用","费用简介"})
     @ExcelImport(names ="费用简介")
+    @ExcelStyle(mergeType = ExcelMergeTypeEnum.VERTICAL_ALL)
     private String description;
     @ExcelExport(names = {"学费统计报表","费用","收入"})
     @ExcelImport(names ="收入")

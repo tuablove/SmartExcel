@@ -1,5 +1,6 @@
 package cn.tools8.smartExcel.annotaion;
 
+import cn.tools8.smartExcel.enums.ExcelMergeTypeEnum;
 import cn.tools8.smartExcel.handler.IWriteDataCellStyleHandler;
 
 import java.lang.annotation.ElementType;
@@ -36,4 +37,10 @@ public @interface ExcelStyle {
      * @return
      */
     boolean autoSizeColumn() default false;
+
+    /**
+     * 合并方式
+     * @return
+     */
+    ExcelMergeTypeEnum mergeType() default ExcelMergeTypeEnum.NONE;
 }

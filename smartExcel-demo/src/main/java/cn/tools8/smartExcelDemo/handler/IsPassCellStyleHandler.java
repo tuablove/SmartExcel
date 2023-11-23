@@ -19,6 +19,8 @@ public class IsPassCellStyleHandler implements IWriteDataCellStyleHandler {
             return null;
         }
         Boolean originCellValue = (Boolean) cellData.getOriginCellValue();
+        if(originCellValue==null)
+            return null;
         if (originCellValue) {
             String color = "green";
             CellStyle red = cellData.getStyleManager().getCellStyle(color);

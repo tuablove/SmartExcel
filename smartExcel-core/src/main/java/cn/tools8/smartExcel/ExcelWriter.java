@@ -2,13 +2,14 @@ package cn.tools8.smartExcel;
 
 import cn.tools8.smartExcel.builder.*;
 import cn.tools8.smartExcel.config.ExcelWriteConfig;
-import cn.tools8.smartExcel.entity.CellOriginData;
 import cn.tools8.smartExcel.entity.CellData;
+import cn.tools8.smartExcel.entity.CellOriginData;
 import cn.tools8.smartExcel.entity.WriteDataBase;
 import cn.tools8.smartExcel.entity.definition.ExcelStyleDefinition;
 import cn.tools8.smartExcel.entity.definition.WriteDataFieldDefinition;
 import cn.tools8.smartExcel.enums.GenericStyleTypeEnum;
 import cn.tools8.smartExcel.manager.AutoSizeColumnManager;
+import cn.tools8.smartExcel.manager.ExcelMergeManager;
 import cn.tools8.smartExcel.manager.ExcelWriteCellStyleManager;
 import cn.tools8.smartExcel.manager.ExpressionManager;
 import cn.tools8.smartExcel.utils.CellUtils;
@@ -74,13 +75,16 @@ public class ExcelWriter<T> extends AbstractExcel {
             int maxChildrenCount = createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet);
             int maxRows = config.getExcelType().getConfig().getMaxRows() - maxTitleRowCount;
             int maxSheetCount = dataList.size() / maxRows + 1;
+
             AutoSizeColumnManager autoSizeColumnManager = new AutoSizeColumnManager();
             for (int i = 0; i < maxSheetCount; i++) {
                 if (i > 0) {
                     sheet = workbook.createSheet(config.getDefaultSheetName() + i);
                     maxChildrenCount = createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet);
                 }
+
                 int pageSize = Math.min(dataList.size() - i * maxRows, maxRows);
+                ExcelMergeManager mergeManager = new ExcelMergeManager(config, mainDataFields, childDataFields, maxTitleRowCount);
                 for (int rowIndex = 0; rowIndex < pageSize; rowIndex++) {
                     Row row = sheet.createRow(rowIndex + maxTitleRowCount);
                     Object dataBase = dataList.get(i * pageSize + rowIndex);
@@ -99,6 +103,7 @@ public class ExcelWriter<T> extends AbstractExcel {
                         }
                     }
                     writeChildren(mainDataFields, childDataFields, maxChildrenCount, autoSizeColumnManager, row, dataBase);
+                    mergeManager.merge(sheet, pageSize, rowIndex);
                 }
                 //自适应宽度
                 autoSizeColumnManager.autoSizeColumn(sheet);

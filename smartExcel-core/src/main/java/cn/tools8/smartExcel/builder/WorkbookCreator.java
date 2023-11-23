@@ -24,7 +24,7 @@ public class WorkbookCreator {
                 break;
             case EXCEL2007STREAM:
             default:
-                workbook = new SXSSFWorkbook();
+                workbook = new SXSSFWorkbook(-1);
                 break;
         }
         return workbook;

@@ -71,6 +71,7 @@ public class ExcelWriteDataFieldDefinitionCreator {
                     }
                     styleDefinition.setAutoSizeColumn(excelStyle.autoSizeColumn());
                     dataField.setStyleDefinition(styleDefinition);
+                    dataField.setMergeType(excelStyle.mergeType());
                 }
                 if (dataField.getOrder() == null) {
                     dataField.setOrder(0);

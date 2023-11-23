@@ -1,6 +1,7 @@
 package cn.tools8.smartExcel.entity;
 
 import cn.tools8.smartExcel.entity.definition.ExcelStyleDefinition;
+import cn.tools8.smartExcel.enums.ExcelMergeTypeEnum;
 import cn.tools8.smartExcel.handler.IWriteValueConverter;
 
 import java.io.Serializable;
@@ -46,6 +47,8 @@ public class DynamicColumn implements Serializable {
      */
     private boolean ignore=false;
 
+    //合并方式
+    private ExcelMergeTypeEnum mergeType;
     public DynamicColumn() {
     }
 
@@ -117,6 +120,14 @@ public class DynamicColumn implements Serializable {
         this.ignore = ignore;
     }
 
+    public ExcelMergeTypeEnum getMergeType() {
+        return mergeType;
+    }
+
+    public void setMergeType(ExcelMergeTypeEnum mergeType) {
+        this.mergeType = mergeType;
+    }
+
     /**
      * 深拷贝
      * @return
@@ -131,6 +142,7 @@ public class DynamicColumn implements Serializable {
         other.setWriteValueConverter(this.getWriteValueConverter());
         other.setStyle(this.getStyle());
         other.setIgnore(this.isIgnore());
+        other.setMergeType(this.getMergeType());
         return other;
     }
 

@@ -45,7 +45,10 @@ public class WriteDynamicColumnTest {
             @Override
             public CellStyle onCreating(CellData cellData) {
                 if ("通过".equals(cellData.getOriginCellValue())) {
-                    return cellData.getStyleManager().getCellStyle("green");
+                    CellStyle green = cellData.getStyleManager().getCellStyle("green");
+                    cellData.getCell().getRow().setRowStyle(green);
+                    return green;
+
                 } else {
                     return cellData.getStyleManager().getCellStyle("red");
                 }
@@ -56,30 +59,41 @@ public class WriteDynamicColumnTest {
         List<GradeFeeDynamicColumnDto> dataList = new ArrayList<>();
         GradeFeeDynamicColumnDto item = new GradeFeeDynamicColumnDto(1001, "学生甲", "好学生", BigDecimal.valueOf(10000), BigDecimal.valueOf(5000), 125678L, "插班生", new Date());
         item.addMulti(dc1, dc2);
-        GradeFeeDynamicColumnDto item1 = new GradeFeeDynamicColumnDto(1002, "学生甲1", "好学生1", BigDecimal.valueOf(9000), BigDecimal.valueOf(3000), 125678L, "原班生", new Date());
+        GradeFeeDynamicColumnDto item1 = new GradeFeeDynamicColumnDto(1001, "学生甲", "好学生", BigDecimal.valueOf(9000), BigDecimal.valueOf(3000), 125678L, "原班生", new Date());
         item1.cloneDynamicColumnFrom(item);
         item1.set("totalScore", "B");
         item1.set("finalScore", "不通过");
 
-        GradeFeeDynamicColumnDto item2 = new GradeFeeDynamicColumnDto(1003, "学生甲1", "好学生1", BigDecimal.valueOf(9000), BigDecimal.valueOf(3000), 125678L, "原班生", new Date());
+        GradeFeeDynamicColumnDto item2 = new GradeFeeDynamicColumnDto(1002, "学生甲1", "好学生1", BigDecimal.valueOf(9000), BigDecimal.valueOf(3000), 125678L, "原班生", new Date());
         item2.cloneDynamicColumnFrom(item);
         Map<String, Object> map = new HashMap<>();
         map.put("totalScore", "B");
         map.put("finalScore", "不通过");
         item2.set(map);
 
+        GradeFeeDynamicColumnDto item3 = new GradeFeeDynamicColumnDto(1002, "学生甲1", "好学生1", BigDecimal.valueOf(9001), BigDecimal.valueOf(3000), 125678L, "原班生", new Date());
+        item3.cloneDynamicColumnFrom(item);
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("totalScore", "B");
+        map1.put("finalScore", "不通过");
+        item3.set(map1);
+
         dataList.add(item);
         dataList.add(item1);
         dataList.add(item2);
+        dataList.add(item3);
 
 
-        for (int i = 0; i < 1000000; i++) {
+        for (int i = 0; i < 100; i++) {
             GradeFeeDynamicColumnDto itemRandom = (GradeFeeDynamicColumnDto) BeanUtils.cloneBean(item);
             item.cloneDynamicColumnTo(itemRandom);
-            itemRandom.setName(itemRandom.getName() + i);
-            itemRandom.setDynamicColumnValue("totalScore", i % 2 == 0 ? "B" : "A");
-            itemRandom.setDynamicColumnValue("finalScore", i % 2 == 0 ? "不通过" : "通过");
-            dataList.add(itemRandom);
+            for (int j = 0; j < 2; j++) {
+                itemRandom.setName(itemRandom.getName() + (i % 2 == 0 ? 1 : 0));
+                itemRandom.setDynamicColumnValue("totalScore", i % 2 == 0 ? "B" : "A");
+                itemRandom.setDynamicColumnValue("finalScore", i % 2 == 0 ? "不通过" : "通过");
+                dataList.add(itemRandom);
+            }
+
         }
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
