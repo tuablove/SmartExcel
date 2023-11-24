@@ -73,6 +73,9 @@ public class ExcelMergeManager {
     private List<int[]> parseVertical(List<WriteDataFieldDefinition> mainDataFields, List<WriteDataFieldDefinition> childDataFields) {
         List<int[]> mainColumnRanges = parseVertical(mainDataFields, 0);
         List<int[]> childColumnRanges = parseVertical(childDataFields, mainDataFields.size());
+        if(mainColumnRanges.size()== 0 && childColumnRanges.size() == 0){
+            return new ArrayList<>();
+        }
         if (mainColumnRanges.size() > 1 || childColumnRanges.size() > 1) {
             throw new IllegalArgumentException("verticalAll 必须设置为连续字段");
         }
