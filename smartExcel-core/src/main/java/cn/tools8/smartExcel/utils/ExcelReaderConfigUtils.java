@@ -2,6 +2,7 @@ package cn.tools8.smartExcel.utils;
 
 import cn.tools8.smartExcel.config.ExcelReaderConfig;
 import cn.tools8.smartExcel.config.ExcelReaderSheetConfig;
+import cn.tools8.smartExcel.config.ExcelReaderWriteConfig;
 import cn.tools8.smartExcel.exception.SheetNameNotFoundError;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -21,6 +22,31 @@ public class ExcelReaderConfigUtils {
     public static ExcelReaderConfig validateConfig(ExcelReaderConfig config) {
         if (config == null) {
             config = new ExcelReaderConfig();
+        }
+        if (Objects.isNull(config.getSheetConfigs()) || config.getSheetConfigs().size() == 0) {
+            config.setSheetConfigs(new ArrayList<>());
+            config.getSheetConfigs().add(new ExcelReaderSheetConfig(0, 0, null, 0, 1));
+        } else {
+            for (ExcelReaderSheetConfig sheetConfig : config.getSheetConfigs()) {
+                if (sheetConfig.getSheetIndexBegin() == null || sheetConfig.getSheetIndexBegin() < 0) {
+                    throw new IllegalArgumentException("sheet config sheetIndexBegin is null");
+                }
+                if(sheetConfig.getDataBeginRowIndex()==null ||  sheetConfig.getDataBeginRowIndex() < 0){
+                    throw new IllegalArgumentException("sheet config dataBeginRowIndex is null");
+                }
+            }
+        }
+        return config;
+    }
+    /**
+     * 验证读取配置
+     *
+     * @param config
+     * @return
+     */
+    public static ExcelReaderWriteConfig validateConfig(ExcelReaderWriteConfig config) {
+        if (config == null) {
+            config = new ExcelReaderWriteConfig();
         }
         if (Objects.isNull(config.getSheetConfigs()) || config.getSheetConfigs().size() == 0) {
             config.setSheetConfigs(new ArrayList<>());
