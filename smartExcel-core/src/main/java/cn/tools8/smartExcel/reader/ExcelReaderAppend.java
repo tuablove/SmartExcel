@@ -68,10 +68,7 @@ public class ExcelReaderAppend<T> extends AbstractExcel {
         this.clazz = clazz;
     }
 
-    /**
-     * 单行处理
-     */
-    public IReadRowHandler readRowHandler;
+
     /**
      * 读取excel
      *
@@ -158,7 +155,9 @@ public class ExcelReaderAppend<T> extends AbstractExcel {
                         }
                         if (filled && (config.getRowIgnoreHandler() == null || !config.getRowIgnoreHandler().ignore(sheetIndex, rowIndex, entity))) {
                             validateEntity(config, sheetIndex, fieldMap, rowIndex, entity);
-                            readRowHandler.onData(sheetIndex,rowIndex,dataRow, (T)entity);
+                            if(config.getReadRowHandler()!=null) {
+                                config.getReadRowHandler().onData(sheetIndex, rowIndex, dataRow,dataList, (T) entity);
+                            }
                             if (entity != null) {
                                 dataList.add((T) entity);
                             }
@@ -260,7 +259,12 @@ public class ExcelReaderAppend<T> extends AbstractExcel {
                                 } catch (Exception ignore) {
 
                                 }
+                            } else if (Map.class.isAssignableFrom(validateMessageField.getType())) {
+                                try {
+                                    validateMessageField.set(entity, errorMessage);
+                                } catch (Exception ignore) {
 
+                                }
                             }
                         }
                     }

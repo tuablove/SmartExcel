@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Date;
 
 /**
@@ -33,7 +34,11 @@ public class CellUtils {
                 if (DateUtil.isCellDateFormatted(cell)) {
                     val = cell.getDateCellValue();
                 } else {
-                    val = BigDecimal.valueOf(cell.getNumericCellValue());
+                    if (cell.getNumericCellValue() % 1 > 0) {
+                        val = BigDecimal.valueOf(cell.getNumericCellValue());
+                    } else {
+                        val = new DecimalFormat("0").format(cell.getNumericCellValue());
+                    }
                 }
                 break;
             case ERROR:
