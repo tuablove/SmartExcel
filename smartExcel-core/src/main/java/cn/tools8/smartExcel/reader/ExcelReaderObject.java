@@ -200,23 +200,20 @@ public class ExcelReaderObject<T> extends AbstractExcel {
                     validateResult.setRowData(entity);
                     config.getValidateResults().add(validateResult);
                     if (validateMessageFields != null && validateMessageFields.size() > 0) {
-                        String validateMessageSingle = errorMessage.values().stream()
-                                .flatMap(List::stream)
-                                .collect(Collectors.joining(","));
-                        List<String> validateMessageList = errorMessage.values().stream()
-                                .flatMap(List::stream)
-                                .collect(Collectors.toList());
                         //写入对象指定字段
                         for (Field validateMessageField : validateMessageFields) {
                             if (validateMessageField.getType().isAssignableFrom(String.class)) {
-                                validateMessageField.set(entity, validateMessageSingle);
+                                String validateMessageSingle = errorMessage.values().stream()
+                                        .flatMap(List::stream)
+                                        .collect(Collectors.joining(","));
+                                setEntityValue(validateMessageField, entity, validateMessageSingle);
                             } else if (List.class.isAssignableFrom(validateMessageField.getType())) {
-                                try {
-                                    validateMessageField.set(entity, validateMessageList);
-                                } catch (Exception ignore) {
-
-                                }
-
+                                List<String> validateMessageList = errorMessage.values().stream()
+                                        .flatMap(List::stream)
+                                        .collect(Collectors.toList());
+                                setEntityValue(validateMessageField, entity, validateMessageList);
+                            } else if (Map.class.isAssignableFrom(validateMessageField.getType())) {
+                                setEntityValue(validateMessageField, entity, errorMessage);
                             }
                         }
                     }
@@ -224,7 +221,19 @@ public class ExcelReaderObject<T> extends AbstractExcel {
             }
         }
     }
-
+    /**
+     * 设置对象值
+     * @param validateMessageField
+     * @param entity
+     * @param errorMessage
+     */
+    private static void setEntityValue(Field validateMessageField, Object entity, Object errorMessage) {
+        try {
+            validateMessageField.set(entity, errorMessage);
+        } catch (Exception ex) {
+            logger.warn("设置对象值失败", ex);
+        }
+    }
     /**
      * 获取列索引与目标属性的对应map
      *
