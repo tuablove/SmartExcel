@@ -12,10 +12,7 @@ public class ExcelReaderWriteConfig extends ExcelReaderConfig {
      * 输出文件地址
      */
     private String filePath;
-    /**
-     * 单行处理
-     */
-    private IReadRowHandler readRowHandler;
+
 
     public String getFilePath() {
         return filePath;
@@ -25,11 +22,5 @@ public class ExcelReaderWriteConfig extends ExcelReaderConfig {
         this.filePath = filePath;
     }
 
-    public IReadRowHandler getReadRowHandler() {
-        return readRowHandler;
-    }
 
-    public void setReadRowHandler(IReadRowHandler readRowHandler) {
-        this.readRowHandler = readRowHandler;
-    }
 }
