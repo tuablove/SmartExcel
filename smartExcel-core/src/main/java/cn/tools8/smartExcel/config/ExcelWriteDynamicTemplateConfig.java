@@ -13,7 +13,10 @@ public class ExcelWriteDynamicTemplateConfig extends ExcelWriteTemplateConfig {
      * 标题对应的行索引
      */
     private Integer titleRowIndex = 0;
-
+    /**
+     * 默认的sheet页索引
+     */
+    private Integer sheetIndex=0;
     /**
      * 单元格初始化样式
      */
@@ -33,5 +36,13 @@ public class ExcelWriteDynamicTemplateConfig extends ExcelWriteTemplateConfig {
 
     public void setDataCellInitializeStyleHandler(IWriteDataCellInitializeStyleHandler dataCellInitializeStyleHandler) {
         this.dataCellInitializeStyleHandler = dataCellInitializeStyleHandler;
+    }
+
+    public Integer getSheetIndex() {
+        return sheetIndex;
+    }
+
+    public void setSheetIndex(Integer sheetIndex) {
+        this.sheetIndex = sheetIndex;
     }
 }

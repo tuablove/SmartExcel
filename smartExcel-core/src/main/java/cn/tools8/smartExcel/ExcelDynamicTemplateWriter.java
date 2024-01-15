@@ -73,7 +73,7 @@ public class ExcelDynamicTemplateWriter<T> extends AbstractExcel implements IExc
                     titleDefinitionMap.put(titleName, dataField);
                 }
             }
-            Sheet sheet = workbook.getSheetAt(0);
+            Sheet sheet = workbook.getSheetAt(config.getSheetIndex());
             int rowIndex = config.getDataBeginRowIndex();
             if (rowIndex < sheet.getLastRowNum()) {
                 sheet.shiftRows(rowIndex + 1, sheet.getLastRowNum(), dataList.size() - 1);
