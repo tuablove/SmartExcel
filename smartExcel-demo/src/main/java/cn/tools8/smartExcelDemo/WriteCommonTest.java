@@ -26,7 +26,7 @@ public class WriteCommonTest {
     public static void writeTitle() throws Exception {
         ExcelWriter<GradeFeeDto> reader = new ExcelWriter<GradeFeeDto>(GradeFeeDto.class);
         List<GradeFeeDto> dataList = new ArrayList<>();
-        GradeFeeDto item = new GradeFeeDto(1001, "学生甲", "好学生", BigDecimal.valueOf(10000), BigDecimal.valueOf(5000), 125678L, "插班生", new Date());
+        GradeFeeDto item = new GradeFeeDto(1001, "学生甲", "好学生", BigDecimal.valueOf(10000), BigDecimal.valueOf(5000), 125678L, "插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生插班生", new Date());
         GradeFeeDto item1 = new GradeFeeDto(1002, "学生甲1", "好学生1", BigDecimal.valueOf(9000), BigDecimal.valueOf(3000), 125678L, "原班生", new Date());
         dataList.add(item);
         dataList.add(item1);

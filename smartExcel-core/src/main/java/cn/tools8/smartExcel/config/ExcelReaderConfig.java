@@ -49,6 +49,12 @@ public class ExcelReaderConfig {
      */
     private IReadRowHandler readRowHandler;
 
+    /**
+     * 读取注解分组
+     * @return
+     */
+    private Class<?>[] groups;
+
     public IReadRowHandler getReadRowHandler() {
         return readRowHandler;
     }
@@ -110,5 +116,12 @@ public class ExcelReaderConfig {
 
     public void setRowIgnoreHandler(IReadRowIgnoreHandler rowIgnoreHandler) {
         this.rowIgnoreHandler = rowIgnoreHandler;
+    }
+
+    public Class<?>[] getGroups() {
+        return groups;
+    }
+    public void setGroups(Class<?>... groups) {
+        this.groups = groups;
     }
 }

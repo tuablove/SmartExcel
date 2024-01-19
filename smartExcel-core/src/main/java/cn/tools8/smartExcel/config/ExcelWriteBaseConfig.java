@@ -1,10 +1,5 @@
 package cn.tools8.smartExcel.config;
 
-import cn.tools8.smartExcel.enums.ExcelTypeEnum;
-import cn.tools8.smartExcel.handler.IWriteGenericCellStyleHandler;
-import cn.tools8.smartExcel.handler.IWriteTitleCellStyleHandler;
-import cn.tools8.smartExcel.handler.IWriteTitleExpressionHandler;
-
 /**
  * 写入excel配置
  *
@@ -20,6 +15,12 @@ public class ExcelWriteBaseConfig{
      */
     private String filePath;
 
+    /**
+     * 分组
+     * @return
+     */
+    private Class<?>[] groups;
+
     public String getPassword() {
         return password;
     }
@@ -34,5 +35,13 @@ public class ExcelWriteBaseConfig{
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    public Class<?>[] getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Class<?>[] groups) {
+        this.groups = groups;
     }
 }

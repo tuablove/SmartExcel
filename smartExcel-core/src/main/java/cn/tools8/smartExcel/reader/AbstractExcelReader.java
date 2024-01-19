@@ -6,13 +6,13 @@ import cn.tools8.smartExcel.annotaion.ExcelImport;
 import cn.tools8.smartExcel.annotaion.ExcelImportValidateMessage;
 import cn.tools8.smartExcel.config.ExcelReaderConfig;
 import cn.tools8.smartExcel.config.ExcelReaderSheetConfig;
-import cn.tools8.smartExcel.config.ExcelReaderWriteConfig;
 import cn.tools8.smartExcel.entity.ImportField;
 import cn.tools8.smartExcel.entity.ValidateResult;
 import cn.tools8.smartExcel.handler.IReadValueConverter;
 import cn.tools8.smartExcel.manager.validator.PropertyMessageInterpolator;
 import cn.tools8.smartExcel.utils.CellUtils;
 import cn.tools8.smartExcel.utils.ExcelReaderConfigUtils;
+import cn.tools8.smartExcel.utils.ReflectUtil;
 import cn.tools8.smartExcel.utils.ValidatorUtil;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -62,7 +62,7 @@ public class AbstractExcelReader extends AbstractExcel {
                 short minColIx = titleRow.getFirstCellNum();
                 short maxColIx = titleRow.getLastCellNum();
                 Map<String, Short> titleColumnMap = getTitle2ColumnIndexMap(titleRow, minColIx, maxColIx);
-                Map<Short, ImportField> columnFieldMap = getColumn2ClassFieldMap(clazz,validateMessageFields, titleColumnMap);
+                Map<Short, ImportField> columnFieldMap = getColumn2ClassFieldMap(clazz,validateMessageFields, titleColumnMap,config.getGroups());
                 Map<String, ImportField> fieldMap = columnFieldMap.values().stream().collect(Collectors.toMap(ImportField::getName, item -> item));
                 for (int rowIndex = sheetConfig.getDataBeginRowIndex(); rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                     Row dataRow = sheet.getRow(rowIndex);
@@ -194,11 +194,12 @@ public class AbstractExcelReader extends AbstractExcel {
      * 获取列索引与目标属性的对应map
      *
      * @param titleColumnMap
+     * @param groups
      * @return
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    protected Map<Short, ImportField> getColumn2ClassFieldMap(Class<?> clazz, List<Field> validateMessageFields,Map<String, Short> titleColumnMap) throws InstantiationException, IllegalAccessException {
+    protected Map<Short, ImportField> getColumn2ClassFieldMap(Class<?> clazz, List<Field> validateMessageFields, Map<String, Short> titleColumnMap, Class<?>[] groups) throws InstantiationException, IllegalAccessException {
         validateMessageFields.clear();
         Map<Short, ImportField> columnFieldMap = new HashMap<>();
         Field[] declaredFields = clazz.getDeclaredFields();
@@ -208,7 +209,7 @@ public class AbstractExcelReader extends AbstractExcel {
                 declaredField.setAccessible(true);
                 validateMessageFields.add(declaredField);
             }
-            ExcelImport excelImport = declaredField.getAnnotation(ExcelImport.class);
+            ExcelImport excelImport = ReflectUtil.getAnnotationWithGroups(declaredField,ExcelImport.class,groups);
             if (excelImport == null || ((excelImport.names() == null || excelImport.names().length == 0) && (excelImport.columnString() == null || excelImport.columnString().length() == 0))) {
                 continue;
             }

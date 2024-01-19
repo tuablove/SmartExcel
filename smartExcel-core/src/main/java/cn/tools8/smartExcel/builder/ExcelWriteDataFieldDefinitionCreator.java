@@ -2,7 +2,6 @@ package cn.tools8.smartExcel.builder;
 
 import cn.tools8.smartExcel.annotaion.ExcelExport;
 import cn.tools8.smartExcel.annotaion.ExcelStyle;
-import cn.tools8.smartExcel.config.ExcelWriteConfig;
 import cn.tools8.smartExcel.config.ExcelWriteFieldConfig;
 import cn.tools8.smartExcel.entity.DynamicColumn;
 import cn.tools8.smartExcel.entity.WriteDataBase;
@@ -11,6 +10,7 @@ import cn.tools8.smartExcel.entity.definition.WriteDataFieldDefinition;
 import cn.tools8.smartExcel.exception.DataFieldRepeatError;
 import cn.tools8.smartExcel.handler.IWriteDataCellStyleHandler;
 import cn.tools8.smartExcel.handler.IWriteValueConverter;
+import cn.tools8.smartExcel.utils.ReflectUtil;
 import org.apache.poi.ss.util.CellReference;
 
 import java.lang.reflect.Field;
@@ -39,7 +39,7 @@ public class ExcelWriteDataFieldDefinitionCreator {
         List<WriteDataFieldDefinition> dataFields = new ArrayList<>();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
-            ExcelExport excelExport = field.getAnnotation(ExcelExport.class);
+            ExcelExport excelExport = ReflectUtil.getAnnotationWithGroups(field,ExcelExport.class,config.getGroups());
             if (excelExport != null) {
                 String fieldKey = field.getName();
                 if (!isInclude(includeFields, excelExport.ignore(), fieldKey)) {
@@ -61,7 +61,7 @@ public class ExcelWriteDataFieldDefinitionCreator {
                 field.setAccessible(true);
                 dataField.setField(field);
                 dataField.setValueType(field.getType());
-                ExcelStyle excelStyle = field.getAnnotation(ExcelStyle.class);
+                ExcelStyle excelStyle =ReflectUtil.getAnnotationWithGroups(field,ExcelStyle.class,config.getGroups());
                 if (excelStyle != null) {
                     ExcelStyleDefinition styleDefinition = new ExcelStyleDefinition();
                     styleDefinition.setDataFormat(excelStyle.dataFormat());
@@ -70,6 +70,7 @@ public class ExcelWriteDataFieldDefinitionCreator {
                         styleDefinition.setCellStyleHandler(styleHandler.newInstance());
                     }
                     styleDefinition.setAutoSizeColumn(excelStyle.autoSizeColumn());
+                    styleDefinition.setMinWidth(excelStyle.minWidth());
                     dataField.setStyleDefinition(styleDefinition);
                     dataField.setMergeType(excelStyle.mergeType());
                 }

@@ -21,6 +21,10 @@ public class ExcelStyleDefinition {
      * 宽度自适应
      */
     private boolean autoSizeColumn;
+    /**
+     * 最小宽度
+     */
+    private int minWidth;
 
     public String getDataFormat() {
         return dataFormat;
@@ -52,5 +56,13 @@ public class ExcelStyleDefinition {
     public ExcelStyleDefinition(String dataFormat, boolean autoSizeColumn) {
         this.dataFormat = dataFormat;
         this.autoSizeColumn = autoSizeColumn;
+    }
+
+    public int getMinWidth() {
+        return minWidth;
+    }
+
+    public void setMinWidth(int minWidth) {
+        this.minWidth = minWidth;
     }
 }

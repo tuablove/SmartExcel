@@ -42,6 +42,10 @@ public class ExcelWriteConfig extends ExcelWriteFieldConfig {
      * 单元格初始化样式
      */
     private IWriteDataCellInitializeStyleHandler dataCellInitializeStyleHandler;
+    /**
+     * 最大子元素数量（如果不设置，将自动遍历获取）
+     */
+    private Integer maxChildrenCount;
 
     public ExcelTypeEnum getExcelType() {
         return excelType;
@@ -89,5 +93,13 @@ public class ExcelWriteConfig extends ExcelWriteFieldConfig {
 
     public void setDataCellInitializeStyleHandler(IWriteDataCellInitializeStyleHandler dataCellInitializeStyleHandler) {
         this.dataCellInitializeStyleHandler = dataCellInitializeStyleHandler;
+    }
+
+    public Integer getMaxChildrenCount() {
+        return maxChildrenCount;
+    }
+
+    public void setMaxChildrenCount(Integer maxChildrenCount) {
+        this.maxChildrenCount = maxChildrenCount;
     }
 }

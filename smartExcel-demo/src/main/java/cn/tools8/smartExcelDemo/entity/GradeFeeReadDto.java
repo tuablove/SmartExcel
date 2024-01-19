@@ -10,7 +10,8 @@ import java.util.Date;
  * @author tuaobin 2023/6/15$ 14:57$
  */
 public class GradeFeeReadDto implements Serializable {
-    @ExcelImport(names = {"学号","学生编号"})
+    @ExcelImport(names = {"学号","学生编号"},groups = {Long.class,Integer.class})
+    @ExcelImport(names = {"学号","学生编号"},groups = GradeFeeReadDto.class)
     private Integer number;
     @ExcelImport(names ="姓名")
     private String name;

@@ -14,4 +14,7 @@ public class SmartExcelError extends RuntimeException {
     public SmartExcelError(String message) {
         super(message);
     }
+    public SmartExcelError(String message,Throwable cause){
+        super(message, cause);
+    }
 }

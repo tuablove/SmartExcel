@@ -33,16 +33,20 @@ public class GradeFeeDto implements Serializable {
     @ExcelExport(names = {"学费统计报表","费用","收入"})
     @ExcelImport(names ="收入")
     @Min(value = 30000,message = "{name}不能低于{value}")
+    @ExcelStyle(autoSizeColumn = true)
     private BigDecimal income;
 
     @ExcelExport(names = {"学费统计报表","费用","支出"})
     @ExcelImport(names ="支出")
     @Max(value = 2,message = "支出不能高2块%s{名称}")
+    @ExcelStyle(autoSizeColumn = true)
     private BigDecimal outcome;
     @ExcelExport(names = {"学费统计报表","凭证号","凭证号"})
     @ExcelImport(names ="凭证号")
+    @ExcelStyle(autoSizeColumn = true)
     private Long ticketNum;
     @ExcelExport(names = {"学费统计报表","备注","备注"})
+    @ExcelStyle(autoSizeColumn = true)
     @ExcelImport(names ="备注")
     private String comment;
     @ExcelExport(names = {"学费统计报表","收集时间","收集时间"})

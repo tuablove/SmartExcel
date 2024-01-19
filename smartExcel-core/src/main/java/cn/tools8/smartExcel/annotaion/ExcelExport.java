@@ -10,6 +10,7 @@ import java.lang.annotation.*;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
+@Repeatable(value = ExcelExports.class)
 @Documented
 public @interface ExcelExport {
     /**
@@ -39,4 +40,10 @@ public @interface ExcelExport {
      * @return
      */
     boolean ignore() default false;
+
+    /**
+     * 分组
+     * @return
+     */
+    Class<?>[] groups() default {};
 }

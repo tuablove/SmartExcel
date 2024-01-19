@@ -8,6 +8,7 @@ import cn.tools8.smartExcel.entity.WriteDataBase;
 import cn.tools8.smartExcel.entity.definition.ExcelStyleDefinition;
 import cn.tools8.smartExcel.entity.definition.WriteDataFieldDefinition;
 import cn.tools8.smartExcel.enums.GenericStyleTypeEnum;
+import cn.tools8.smartExcel.exception.SmartExcelError;
 import cn.tools8.smartExcel.manager.AutoSizeColumnManager;
 import cn.tools8.smartExcel.manager.ExcelMergeManager;
 import cn.tools8.smartExcel.manager.ExcelWriteCellStyleManager;
@@ -16,6 +17,8 @@ import cn.tools8.smartExcel.utils.CellUtils;
 import cn.tools8.smartExcel.utils.ExcelMergeUtils;
 import cn.tools8.smartExcel.utils.ExcelWriteConfigUtils;
 import cn.tools8.smartExcel.utils.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.crypt.EncryptionMode;
 import org.apache.poi.poifs.crypt.Encryptor;
@@ -72,15 +75,16 @@ public class ExcelWriter<T> extends AbstractExcel {
             List<WriteDataFieldDefinition> childDataFields = getChildrenDataFieldDefinitions(dataList, config);
             int maxTitleRowCount = calculateMaxTitleRowCount(mainDataFields, childDataFields);
             Sheet sheet = workbook.createSheet(config.getDefaultSheetName());
-            int maxChildrenCount = createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet);
+            AutoSizeColumnManager autoSizeColumnManager = new AutoSizeColumnManager();
+            int maxChildrenCount = createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet,config.getMaxChildrenCount(),autoSizeColumnManager);
             int maxRows = config.getExcelType().getConfig().getMaxRows() - maxTitleRowCount;
             int maxSheetCount = dataList.size() / maxRows + 1;
 
-            AutoSizeColumnManager autoSizeColumnManager = new AutoSizeColumnManager();
+
             for (int i = 0; i < maxSheetCount; i++) {
                 if (i > 0) {
                     sheet = workbook.createSheet(config.getDefaultSheetName() + i);
-                    maxChildrenCount = createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet);
+                    maxChildrenCount = createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet, config.getMaxChildrenCount(), autoSizeColumnManager);
                 }
 
                 int pageSize = Math.min(dataList.size() - i * maxRows, maxRows);
@@ -99,7 +103,7 @@ public class ExcelWriter<T> extends AbstractExcel {
                         }
                         setCellValueStyle(dataBase, dataField, cell, originValue);
                         if (dataField.getStyleDefinition() != null && dataField.getStyleDefinition().isAutoSizeColumn()) {
-                            autoSizeColumnManager.setMax(column, cell.toString().length());
+                            autoSizeColumnManager.setMax(column, Math.max(dataField.getStyleDefinition().getMinWidth(), cell.toString().length()));
                         }
                     }
                     writeChildren(mainDataFields, childDataFields, maxChildrenCount, autoSizeColumnManager, row, dataBase);
@@ -110,7 +114,7 @@ public class ExcelWriter<T> extends AbstractExcel {
             }
             save(config);
         } catch (Exception e) {
-            throw e;
+            throw new SmartExcelError(ExceptionUtils.getStackTrace(e),e);
         } finally {
             IOUtils.close(workbook);
         }
@@ -290,9 +294,11 @@ public class ExcelWriter<T> extends AbstractExcel {
      * @param childDataFields
      * @param maxTitleRowCount
      * @param sheet
+     * @param maxChildrenCountSetting
+     * @param autoSizeColumnManager
      * @return
      */
-    private int createSheetTitle(List<?> dataList, List<WriteDataFieldDefinition> mainDataFields, List<WriteDataFieldDefinition> childDataFields, int maxTitleRowCount, Sheet sheet) {
+    private int createSheetTitle(List<?> dataList, List<WriteDataFieldDefinition> mainDataFields, List<WriteDataFieldDefinition> childDataFields, int maxTitleRowCount, Sheet sheet, Integer maxChildrenCountSetting, AutoSizeColumnManager autoSizeColumnManager) {
         for (int i = 0; i < maxTitleRowCount; i++) {
             sheet.createRow(i);
         }
@@ -318,13 +324,20 @@ public class ExcelWriter<T> extends AbstractExcel {
                 }
                 cell.setCellValue(titleName);
                 cell.setCellStyle(cellStyle);
+                if (i == 0) {
+                    autoSizeColumnManager.setMax(column, StringUtils.length(titleName));
+                }
             }
         }
         int maxChildrenCount = 0;
         if (childDataFields.size() > 0) {
-            for (Object dataBase : dataList) {
-                if (dataBase instanceof WriteDataBase) {
-                    maxChildrenCount = Math.max(maxChildrenCount, ((WriteDataBase) dataBase).getWriteDateChildren() == null ? 0 : ((WriteDataBase) dataBase).getWriteDateChildren().size());
+            if (maxChildrenCountSetting != null) {
+                maxChildrenCount = maxChildrenCountSetting;
+            } else {
+                for (Object dataBase : dataList) {
+                    if (dataBase instanceof WriteDataBase) {
+                        maxChildrenCount = Math.max(maxChildrenCount, ((WriteDataBase) dataBase).getWriteDateChildren() == null ? 0 : ((WriteDataBase) dataBase).getWriteDateChildren().size());
+                    }
                 }
             }
             for (int count = 0; count < maxChildrenCount; count++) {
@@ -338,16 +351,23 @@ public class ExcelWriter<T> extends AbstractExcel {
                         if (titleNames.size() > i) {
                             titleName = titleNames.get(titleNames.size() - i - 1);
                         }
-                        Cell cell = sheet.getRow(row).createCell(column + mainDataFields.size() + count * childDataFields.size());
+                        int realColumn = column + mainDataFields.size() + count * childDataFields.size();
+                        Cell cell = sheet.getRow(row).createCell(realColumn);
                         CellStyle cellStyle = titleCellStyleManager.getCellStyle(titleName);
                         if (cellStyle == null) {
                             cellStyle = genericCellStyleManager.getCellStyle(GenericStyleTypeEnum.TITLE.getType());
                         }
                         if (expressionManager.hasExpression(titleName)) {
-                            titleName = expressionManager.parse(titleName).toString();
+                            Object parseName = expressionManager.parse(titleName);
+                            if (parseName != null) {
+                                titleName = parseName.toString();
+                            }
                         }
                         cell.setCellValue(titleName);
                         cell.setCellStyle(cellStyle);
+                        if (i == 0) {
+                            autoSizeColumnManager.setMax(realColumn, StringUtils.length(titleName));
+                        }
                     }
                 }
             }

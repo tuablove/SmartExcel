@@ -3,10 +3,7 @@ package cn.tools8.smartExcel.annotaion;
 import cn.tools8.smartExcel.enums.ExcelMergeTypeEnum;
 import cn.tools8.smartExcel.handler.IWriteDataCellStyleHandler;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * 样式
@@ -15,6 +12,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
+@Repeatable(value = ExcelStyles.class)
 public @interface ExcelStyle {
     /**
      * 数据格式样式
@@ -43,4 +41,16 @@ public @interface ExcelStyle {
      * @return
      */
     ExcelMergeTypeEnum mergeType() default ExcelMergeTypeEnum.NONE;
+
+    /**
+     * 最小宽度(多少字符)
+     * @return
+     */
+    int minWidth() default 0;
+
+    /**
+     * 分组
+     * @return
+     */
+    Class<?>[] groups() default {};
 }
