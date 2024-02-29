@@ -15,9 +15,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <poi-ooxml.version>5.2.0</poi-ooxml.version>
+    <poi-ooxml.version>5.2.5</poi-ooxml.version>
     <poi-ooxml-schemas.version>4.1.2</poi-ooxml-schemas.version>
-    <poi-scratchpad.version>5.2.3</poi-scratchpad.version>
+    <poi-scratchpad.version>5.2.5</poi-scratchpad.version>
     <jxls-poi.version>2.12.0</jxls-poi.version>
     <commons-jexl3.version>3.3</commons-jexl3.version>
     <javax.el-api.version>3.0.0</javax.el-api.version>
