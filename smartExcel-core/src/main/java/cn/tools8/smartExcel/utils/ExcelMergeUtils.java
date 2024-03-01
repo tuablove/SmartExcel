@@ -1,18 +1,13 @@
 package cn.tools8.smartExcel.utils;
 
-import cn.tools8.smartExcel.builder.WorkbookCreator;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 合并单元格
@@ -49,12 +44,12 @@ public class ExcelMergeUtils {
                         if (stepCellValue.equals(cellValue)) {
                             positions.add(new Position(stepRow, column));
                             if (stepRow == range.getLastRow()) {
-                                sheet.addMergedRegion(new CellRangeAddress(row, stepRow, column, column));
+                                addMergedRegion(sheet, new CellRangeAddress(row, stepRow, column, column));
                                 merged = true;
                             }
                         } else {
                             if (stepRow != row + 1) {
-                                sheet.addMergedRegion(new CellRangeAddress(row, stepRow - 1, column, column));
+                                addMergedRegion(sheet, new CellRangeAddress(row, stepRow - 1, column, column));
                                 merged = true;
                             }
                             break;
@@ -68,11 +63,11 @@ public class ExcelMergeUtils {
                             if (stepCellValue.equals(cellValue)) {
                                 positions.add(new Position(row, stepColumn));
                                 if (stepColumn == range.getLastColumn()) {
-                                    sheet.addMergedRegion(new CellRangeAddress(row, row, column, stepColumn));
+                                    addMergedRegion(sheet, new CellRangeAddress(row, row, column, stepColumn));
                                 }
                             } else {
                                 if (stepColumn != column + 1) {
-                                    sheet.addMergedRegion(new CellRangeAddress(row, row, column, stepColumn - 1));
+                                    addMergedRegion(sheet, new CellRangeAddress(row, row, column, stepColumn - 1));
                                 }
                                 break;
                             }
@@ -116,12 +111,46 @@ public class ExcelMergeUtils {
             if (mergeRowCount > 0) {
                 for (int column = range.getFirstColumn(); column <= range.getLastColumn(); column++) {
                     mergedLastRow = row + mergeRowCount;
-                    sheet.addMergedRegion(new CellRangeAddress(row, mergedLastRow, column, column));
+                    CellRangeAddress targetRange = new CellRangeAddress(row, mergedLastRow, column, column);
+                    addMergedRegion(sheet, targetRange);
                 }
                 row += mergeRowCount;
             }
         }
         return mergedLastRow;
+    }
+
+    /**
+     * 添加合并区域
+     *
+     * @param sheet
+     * @param targetRange
+     */
+    private static void addMergedRegion(Sheet sheet, CellRangeAddress targetRange) {
+        List<CellRangeAddress> mergedRanges = sheet.getMergedRegions();
+        List<CellRangeAddress> conflictRanges = new ArrayList<>();
+        List<Integer> conflictRangeIndexList = new ArrayList<>();
+        for (int i = 0; i < mergedRanges.size(); i++) {
+            CellRangeAddress cellAddresses = mergedRanges.get(i);
+            //冲突
+            if (cellAddresses.intersects(targetRange)) {
+                conflictRangeIndexList.add(i);
+                conflictRanges.add(cellAddresses);
+            }
+        }
+        if (conflictRangeIndexList.size() > 0) {
+            sheet.removeMergedRegions(conflictRangeIndexList);
+            int firstRow = targetRange.getFirstRow(), lastRow = targetRange.getLastRow(), firstCol = targetRange.getFirstColumn(), lastCol = targetRange.getLastColumn();
+            for (CellRangeAddress conflictRange : conflictRanges) {
+                firstRow = Math.min(firstRow, conflictRange.getFirstRow());
+                lastRow = Math.max(lastRow, conflictRange.getLastRow());
+                firstCol = Math.min(firstCol, conflictRange.getFirstColumn());
+                lastCol = Math.max(lastCol, conflictRange.getLastColumn());
+            }
+            sheet.addMergedRegionUnsafe(new CellRangeAddress(firstRow, lastRow, firstCol, lastCol));
+        } else {
+            sheet.addMergedRegionUnsafe(targetRange);
+        }
     }
 
     private static Object getSheetCellValue(Sheet sheet, int row, int column) {

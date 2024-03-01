@@ -20,7 +20,7 @@ public class GradeFeeDynamicColumnDto extends WriteDataBase implements Serializa
 //    @ExcelExport(names = {"学费统计报表","学费统计报表","学费统计报表"})
     private Integer number;
     @ExcelExport(names = {"学费统计报表","个人信息","姓名"})
-//    @ExcelStyle(autoSizeColumn = true,mergeType = ExcelMergeTypeEnum.VERTICAL_ALL)
+    @ExcelStyle(autoSizeColumn = true,mergeType = ExcelMergeTypeEnum.VERTICAL_ALL)
     @ExcelImport(names ="姓名")
     private String name;
     @ExcelExport(names = {"学费统计报表","费用","费用简介"})

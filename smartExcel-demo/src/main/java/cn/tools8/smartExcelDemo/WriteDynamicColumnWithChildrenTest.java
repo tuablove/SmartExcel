@@ -65,7 +65,10 @@ public class WriteDynamicColumnWithChildrenTest {
         dataList.add(item1);
         for (int i = 0; i < 3000; i++) {
             GradeFeeDynamicColumnDto itemRandom = (GradeFeeDynamicColumnDto) BeanUtils.cloneBean(item);
-            itemRandom.setName(itemRandom.getName() + i);
+            String name = Integer.toString(i / 3);
+            System.out.print(name+"  ");
+            itemRandom.setName(itemRandom.getName() +name);
+            System.out.println(itemRandom.getName());
             dataList.add(itemRandom);
         }
         StopWatch stopWatch = new StopWatch();
