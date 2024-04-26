@@ -87,6 +87,7 @@ public class ExcelWriter<T> extends AbstractExcel {
                     maxChildrenCount = createSheetTitle(dataList, mainDataFields, childDataFields, maxTitleRowCount, sheet, config.getMaxChildrenCount(), autoSizeColumnManager);
                 }
 
+                sheet.createFreezePane(0,maxTitleRowCount);
                 int pageSize = Math.min(dataList.size() - i * maxRows, maxRows);
                 ExcelMergeManager mergeManager = new ExcelMergeManager(config, mainDataFields, childDataFields, maxTitleRowCount);
                 for (int rowIndex = 0; rowIndex < pageSize; rowIndex++) {

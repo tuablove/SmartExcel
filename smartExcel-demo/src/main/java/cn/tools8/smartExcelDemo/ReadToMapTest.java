@@ -16,7 +16,8 @@ public class ReadToMapTest {
     }
     public static void firstTitleRow() throws Exception {
         ExcelReader<Map> reader = new ExcelReader<Map>(Map.class);
-        List<Map> read = reader.read(new FileInputStream(Thread.currentThread().getContextClassLoader().getResource("").getPath() + "/班费收支明细表1.xlsx"));
+        FileInputStream is = new FileInputStream("/Users/tobin/Library/Containers/com.tencent.xinWeChat/Data/Library/Application Support/com.tencent.xinWeChat/2.0b4.0.9/7f34fab5a6bcacb826362dbe615d0873/Message/MessageTemp/97d15043c2a5ce30e4effa725ce99299/File/华中农业大学-水产学院-汇总表-20240408112718004.xlsx");
+        List<Map> read = reader.read(is);
         System.out.println(read);
     }
 }
