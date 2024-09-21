@@ -16,6 +16,7 @@ import cn.tools8.smartExcel.manager.ExpressionManager;
 import cn.tools8.smartExcel.utils.CellUtils;
 import cn.tools8.smartExcel.utils.ExcelWriteConfigUtils;
 import cn.tools8.smartExcel.utils.IOUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.crypt.EncryptionMode;
 import org.apache.poi.poifs.crypt.Encryptor;
@@ -71,7 +72,9 @@ public class ExcelWriterTemplateSimple<T> extends AbstractExcel implements IExce
                 if (i == 0 && row != null) {
                     lastCellNum = row.getLastCellNum();
                     for (int c = 0; c < lastCellNum; c++) {
-                        cellStyleMap.put(c, row.getCell(c).getCellStyle());
+                        if (ObjectUtils.isNotEmpty(row.getCell(c))) {
+                            cellStyleMap.put(c, row.getCell(c).getCellStyle());   
+                        }
                     }
                 }
                 if (row == null) {

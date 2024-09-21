@@ -1,9 +1,11 @@
 package cn.tools8.smartExcel;
 
-import cn.tools8.smartExcel.builder.*;
+import cn.tools8.smartExcel.builder.DataCellStyleCreator;
+import cn.tools8.smartExcel.builder.DefaultCellStyleCreator;
+import cn.tools8.smartExcel.builder.ExcelWriteDataFieldDefinitionCreator;
+import cn.tools8.smartExcel.builder.GenericCellStyleCreator;
 import cn.tools8.smartExcel.config.ExcelWriteBaseConfig;
 import cn.tools8.smartExcel.config.ExcelWriteDynamicTemplateConfig;
-import cn.tools8.smartExcel.config.ExcelWriteTemplateConfig;
 import cn.tools8.smartExcel.entity.CellData;
 import cn.tools8.smartExcel.entity.CellOriginData;
 import cn.tools8.smartExcel.entity.WriteDataBase;
@@ -16,6 +18,7 @@ import cn.tools8.smartExcel.manager.ExpressionManager;
 import cn.tools8.smartExcel.utils.CellUtils;
 import cn.tools8.smartExcel.utils.ExcelWriteConfigUtils;
 import cn.tools8.smartExcel.utils.IOUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.crypt.EncryptionMode;
@@ -32,7 +35,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * excel动态模板写入
@@ -88,14 +90,14 @@ public class ExcelDynamicTemplateWriter<T> extends AbstractExcel implements IExc
             }
             Map<Integer, CellStyle> cellStyleMap = new HashMap<>();
             AutoSizeColumnManager autoSizeColumnManager = new AutoSizeColumnManager();
-            short lastCellNum = 0;
             for (int i = 0; i < dataList.size(); i++, rowIndex++) {
                 T dataBase = dataList.get(i);
                 Row row = sheet.getRow(rowIndex);
                 if (i == 0 && row != null) {
-                    lastCellNum = row.getLastCellNum();
-                    for (int c = 0; c < lastCellNum; c++) {
-                        cellStyleMap.put(c, row.getCell(c).getCellStyle());
+                    for (int c = 0; c < titleRow.getLastCellNum(); c++) {
+                        if (ObjectUtils.isNotEmpty(row.getCell(c))) {
+                            cellStyleMap.put(c, row.getCell(c).getCellStyle());
+                        }
                     }
                 }
                 if (row == null) {
