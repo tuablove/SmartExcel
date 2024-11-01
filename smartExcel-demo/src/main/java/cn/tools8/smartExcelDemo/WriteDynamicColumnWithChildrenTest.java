@@ -5,6 +5,7 @@ import cn.tools8.smartExcel.config.ExcelWriteConfig;
 import cn.tools8.smartExcel.entity.DynamicColumn;
 import cn.tools8.smartExcel.entity.WriteDataBase;
 import cn.tools8.smartExcel.entity.definition.ExcelStyleDefinition;
+import cn.tools8.smartExcel.enums.ExcelTypeEnum;
 import cn.tools8.smartExcelDemo.entity.GradeFeeDynamicColumnDto;
 import cn.tools8.smartExcelDemo.entity.StudentScoreDto;
 import cn.tools8.smartExcelDemo.handler.TitleCellStyleHandler;
@@ -74,6 +75,7 @@ public class WriteDynamicColumnWithChildrenTest {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         ExcelWriteConfig config = new ExcelWriteConfig();
+//        config.setExcelType(ExcelTypeEnum.EXCEL2007);
         config.setFilePath(Thread.currentThread().getContextClassLoader().getResource("").getPath()+ "/班费收支明细表-DynamicColumnWithChildren.xlsx");
         config.setDefaultSheetName("班费收支明细表");
         //设置名称

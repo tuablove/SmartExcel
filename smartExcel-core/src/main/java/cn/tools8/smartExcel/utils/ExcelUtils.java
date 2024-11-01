@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -76,5 +78,53 @@ public class ExcelUtils {
      */
     public static void copyTo(String excelFilePath, String targetPath) throws IOException {
         Files.copy(Paths.get(excelFilePath), Paths.get(targetPath), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /**
+     * 替换一个单元格的样式
+     *
+     * @param excelFilePath
+     * @param sheetIndex
+     * @param rowIndex
+     * @throws Exception
+     */
+    public static void changeStyle(String excelFilePath, Integer sheetIndex, Integer rowIndex,IExcelStyleChangeHandler handler) throws Exception {
+        Path filePath = Paths.get(excelFilePath);
+        Workbook workbook = null;
+        try (InputStream inp = Files.newInputStream(filePath)) {
+            workbook = WorkbookFactory.create(inp);
+            Sheet sheet = workbook.getSheetAt(sheetIndex);
+            Row targetRow = sheet.getRow(rowIndex);
+            int numCellStyles = workbook.getNumCellStyles();
+            List<CellStyle> cellStyles = new ArrayList<>();
+            for (int i = 0; i < numCellStyles; i++) {
+                cellStyles.add(workbook.getCellStyleAt(i));
+            }
+            for (short c = 0; c < targetRow.getLastCellNum(); c++) {
+                Object cellValue = CellUtils.getCellValue(targetRow.getCell(c));
+                if (cellValue != null) {
+                    CellStyle newStyle = handler.change(workbook, sheet, targetRow, c, targetRow.getCell(c), cellValue, cellStyles);
+                    if (newStyle != null) {
+                        targetRow.getCell(c).setCellStyle(newStyle);
+                    }
+                }
+            }
+            try (OutputStream stream = Files.newOutputStream(filePath)) {
+                workbook.write(stream);
+                stream.flush();
+            }
+        } finally {
+            if (workbook != null) {
+                workbook.close();
+            }
+        }
+
+    }
+
+    /**
+     * 更新样式钩子
+     */
+    public interface  IExcelStyleChangeHandler{
+        CellStyle change(Workbook workbook, Sheet sheet, Row targetRow,short c, Cell cell, Object cellValue,List<CellStyle> cellStyleList);
     }
 }
