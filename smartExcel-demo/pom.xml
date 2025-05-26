@@ -28,7 +28,7 @@
     <dependency>
       <groupId>cn.tools8.smartExcel</groupId>
       <artifactId>smartExcel-core</artifactId>
-      <version>0.0.7-SNAPSHOT</version>
+      <version>0.0.8-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

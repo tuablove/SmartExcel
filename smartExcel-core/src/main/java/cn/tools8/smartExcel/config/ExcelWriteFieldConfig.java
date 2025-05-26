@@ -1,9 +1,6 @@
 package cn.tools8.smartExcel.config;
 
-import cn.tools8.smartExcel.enums.ExcelTypeEnum;
-import cn.tools8.smartExcel.handler.IWriteGenericCellStyleHandler;
-import cn.tools8.smartExcel.handler.IWriteTitleCellStyleHandler;
-import cn.tools8.smartExcel.handler.IWriteTitleExpressionHandler;
+import cn.tools8.smartExcel.handler.IWriteSortOrderHandler;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -25,6 +22,11 @@ public class ExcelWriteFieldConfig extends  ExcelWriteBaseConfig {
      * 如果包含字段设置了，不包含字段列表也设置了，最终结果未不包含
      */
     private Set<String> excludeFields;
+
+    /**
+     * 重新排序
+     */
+    private IWriteSortOrderHandler sortOrderHandler;
 
     public Set<String> getIncludeFields() {
         return includeFields;
@@ -50,4 +52,11 @@ public class ExcelWriteFieldConfig extends  ExcelWriteBaseConfig {
         this.includeFields = new HashSet<String>(Arrays.asList(includeFields));
     }
 
+    public IWriteSortOrderHandler getSortOrderHandler() {
+        return sortOrderHandler;
+    }
+
+    public void setSortOrderHandler(IWriteSortOrderHandler orderHandler) {
+        this.sortOrderHandler = orderHandler;
+    }
 }

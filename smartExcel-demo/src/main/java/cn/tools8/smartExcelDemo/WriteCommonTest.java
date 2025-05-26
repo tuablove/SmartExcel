@@ -2,19 +2,16 @@ package cn.tools8.smartExcelDemo;
 
 import cn.tools8.smartExcel.ExcelWriter;
 import cn.tools8.smartExcel.config.ExcelWriteConfig;
-import cn.tools8.smartExcel.entity.DynamicColumn;
-import cn.tools8.smartExcel.entity.WriteDataBase;
+import cn.tools8.smartExcel.entity.SortOrderColumn;
+import cn.tools8.smartExcel.handler.IWriteSortOrderHandler;
 import cn.tools8.smartExcelDemo.entity.GradeFeeDto;
-import cn.tools8.smartExcelDemo.entity.StudentScoreDto;
 import cn.tools8.smartExcelDemo.handler.TitleCellStyleHandler;
 import cn.tools8.smartExcelDemo.handler.TitleExpressionHandler;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Unit test for simple App.
@@ -45,6 +42,15 @@ public class WriteCommonTest {
         config.setTitleCellStyleHandler(new TitleCellStyleHandler());
         //全局设置不包含的字段
         config.setExcludeFields("totalScore","comment");
+        //排序设置
+        config.setSortOrderHandler(new IWriteSortOrderHandler() {
+            @Override
+            public void sort(Class<?> clazz, List<SortOrderColumn> columns) {
+                for (int i = 0; i < columns.size(); i++) {
+                    columns.get(i).setOrder(columns.size()-1 - i);
+                }
+            }
+        });
         reader.write(dataList, config);
         stopWatch.stop();
         System.out.println("completed : " + stopWatch.formatTime());
