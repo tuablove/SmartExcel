@@ -73,24 +73,30 @@ public class ExcelMergeManager {
     private List<int[]> parseVertical(List<WriteDataFieldDefinition> mainDataFields, List<WriteDataFieldDefinition> childDataFields) {
         List<int[]> mainColumnRanges = parseVertical(mainDataFields, 0);
         List<int[]> childColumnRanges = parseVertical(childDataFields, mainDataFields.size());
-        if(mainColumnRanges.size()== 0 && childColumnRanges.size() == 0){
+        if (mainColumnRanges.size() == 0 && childColumnRanges.size() == 0) {
             return new ArrayList<>();
         }
-        if (mainColumnRanges.size() > 1 || childColumnRanges.size() > 1) {
-            throw new IllegalArgumentException("verticalAll 必须设置为连续字段");
+        if (mainColumnRanges.size() > 1) {
+            while (mainColumnRanges.size() > 1) {
+                mainColumnRanges.remove(1);
+            }
+        }
+        if (childColumnRanges.size() > 1) {
+            while (childColumnRanges.size() > 1) {
+                childColumnRanges.remove(1);
+            }
         }
         if (mainColumnRanges.size() > 0 && childColumnRanges.size() == 0) {
             return mainColumnRanges;
-        }
-        if (mainColumnRanges.size() == 0 && childColumnRanges.size() > 0) {
+        } else if (mainColumnRanges.size() == 0 && childColumnRanges.size() > 0) {
             return childColumnRanges;
+        } else if (mainColumnRanges.size() > 0 && childColumnRanges.size() > 0 && (mainColumnRanges.get(0)[1] + 1) == childColumnRanges.get(0)[0]) {
+            return new ArrayList<int[]>() {{
+                add(new int[]{mainColumnRanges.get(0)[0], childColumnRanges.get(0)[1]});
+            }};
+        } else {
+            return mainColumnRanges;
         }
-        if (mainColumnRanges.get(0)[1] != childColumnRanges.get(0)[0] - 1) {
-            throw new IllegalArgumentException("verticalAll 必须设置为连续字段");
-        }
-        return new ArrayList<int[]>() {{
-            add(new int[]{mainColumnRanges.get(0)[0], childColumnRanges.get(0)[1]});
-        }};
     }
 
     /**
@@ -116,7 +122,7 @@ public class ExcelMergeManager {
                 }
             } else {
                 if (mergeColumns[1] != -1) {
-                    mergeCellRange.add(new int[]{mergeColumns[0], mergeColumns[1]});
+                    mergeCellRange.add(new int[]{margin+ mergeColumns[0],margin+ mergeColumns[1]});
                     mergeColumns[0] = -1;
                     mergeColumns[1] = -1;
                 }
