@@ -1,7 +1,6 @@
 package cn.tools8.smartExcel.manager;
 
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.util.SheetUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +11,10 @@ import java.util.Map;
  * @author tuaobin 2023/6/26$ 13:56$
  */
 public class AutoSizeColumnManager {
+    private static final int MIN_WIDTH = 8;
+    private static final int MAX_WIDTH = 255;
+    private static final int PADDING = 2;
+
     private Map<Integer, Integer> columnLengthMap = new HashMap<>();
 
     /**
@@ -37,7 +40,8 @@ public class AutoSizeColumnManager {
      */
     public void autoSizeColumn(Sheet sheet) {
         for (Map.Entry<Integer, Integer> columnLength : columnLengthMap.entrySet()) {
-            sheet.setColumnWidth(columnLength.getKey(), Math.min(Math.max(columnLength.getValue()*2, 8), 255) * 256);
+            int width = Math.min(Math.max(columnLength.getValue() + PADDING, MIN_WIDTH), MAX_WIDTH);
+            sheet.setColumnWidth(columnLength.getKey(), width * 256);
         }
     }
 }

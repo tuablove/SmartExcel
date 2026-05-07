@@ -2,10 +2,10 @@ package cn.tools8.smartExcelDemo;
 
 import cn.tools8.smartExcel.ExcelWriter;
 import cn.tools8.smartExcel.config.ExcelWriteConfig;
-import cn.tools8.smartExcel.entity.DynamicColumn;
 import cn.tools8.smartExcel.entity.WriteDataBase;
 import cn.tools8.smartExcelDemo.entity.GradeFeeDynamicColumnDto;
 import cn.tools8.smartExcelDemo.entity.StudentScoreDto;
+import cn.tools8.smartExcelDemo.handler.ChildTitleCellStyleHandler;
 import cn.tools8.smartExcelDemo.handler.TitleCellStyleHandler;
 import cn.tools8.smartExcelDemo.handler.TitleExpressionHandler;
 import org.apache.commons.beanutils.BeanUtils;
@@ -56,6 +56,8 @@ public class WriteWithChildrenTest {
         //设置名称
         config.setTitleExpressionHandler(new TitleExpressionHandler());
         config.setTitleCellStyleHandler(new TitleCellStyleHandler());
+        //子标题分组配色（按 child 下标）
+        config.setChildTitleCellStyleHandler(new ChildTitleCellStyleHandler());
         //全局设置不包含的字段
         config.setExcludeFields("totalScore","comment");
         reader.write(dataList, config);

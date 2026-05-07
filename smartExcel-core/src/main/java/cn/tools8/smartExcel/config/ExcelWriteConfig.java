@@ -1,14 +1,11 @@
 package cn.tools8.smartExcel.config;
 
 import cn.tools8.smartExcel.enums.ExcelTypeEnum;
+import cn.tools8.smartExcel.handler.IWriteChildTitleCellStyleHandler;
 import cn.tools8.smartExcel.handler.IWriteDataCellInitializeStyleHandler;
 import cn.tools8.smartExcel.handler.IWriteGenericCellStyleHandler;
 import cn.tools8.smartExcel.handler.IWriteTitleCellStyleHandler;
 import cn.tools8.smartExcel.handler.IWriteTitleExpressionHandler;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * 写入excel配置
@@ -33,6 +30,10 @@ public class ExcelWriteConfig extends ExcelWriteFieldConfig {
      * 指定标题格的样式
      */
     private IWriteTitleCellStyleHandler titleCellStyleHandler;
+    /**
+     * 子标题样式设置
+     */
+    private IWriteChildTitleCellStyleHandler childTitleCellStyleHandler;
     /**
      * 标题表达式
      */
@@ -77,6 +78,14 @@ public class ExcelWriteConfig extends ExcelWriteFieldConfig {
 
     public void setTitleCellStyleHandler(IWriteTitleCellStyleHandler titleCellStyleHandler) {
         this.titleCellStyleHandler = titleCellStyleHandler;
+    }
+
+    public IWriteChildTitleCellStyleHandler getChildTitleCellStyleHandler() {
+        return childTitleCellStyleHandler;
+    }
+
+    public void setChildTitleCellStyleHandler(IWriteChildTitleCellStyleHandler childTitleCellStyleHandler) {
+        this.childTitleCellStyleHandler = childTitleCellStyleHandler;
     }
 
     public IWriteTitleExpressionHandler getTitleExpressionHandler() {

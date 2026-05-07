@@ -1,31 +1,62 @@
 package cn.tools8;
 
-import static org.junit.Assert.assertTrue;
-
 import cn.tools8.convert.BaseTypeConverter;
+import cn.tools8.convert.exception.UnsupportedClassTypeError;
 import org.junit.Test;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
+
+import static org.junit.Assert.*;
 
 /**
- * Unit test for simple App.
+ * BaseTypeConverter tests.
  */
-public class AppTest 
-{
-    /**
-     * Rigorous Test :-)
-     */
+public class AppTest {
+
+    private enum Status {
+        OPEN, CLOSED
+    }
+
     @Test
-    public void shouldAnswerWithTrue()
-    {
-//        String convert5 = BaseTypeConverter.convert('1', String.class);
-//        String convert = BaseTypeConverter.convert(1, String.class);
-//        Byte[] convert2 = BaseTypeConverter.convert("1", Byte[].class);
-//        Byte[] convert3 = BaseTypeConverter.convert(new BigDecimal[]{BigDecimal.ONE,BigDecimal.ZERO}, Byte[].class);
-        Byte[] convert4 = BaseTypeConverter.convert(new ArrayList<String>(), Byte[].class);
-//        System.out.println(convert);
+    public void testConvertWithDefaultValue() {
+        Integer value = BaseTypeConverter.convert("abc", Integer.class, 99);
+        assertEquals(Integer.valueOf(99), value);
+    }
+
+    @Test
+    public void testConvertNumberToNumberFastPath() {
+        Long value = BaseTypeConverter.convert(12.8D, Long.class);
+        assertEquals(Long.valueOf(12L), value);
+    }
+
+    @Test
+    public void testConvertStringToEnum() {
+        Status status = BaseTypeConverter.convert("OPEN", Status.class);
+        assertEquals(Status.OPEN, status);
+    }
+
+    @Test
+    public void testConvertEnumToString() {
+        String value = BaseTypeConverter.convert(Status.CLOSED, String.class);
+        assertEquals("CLOSED", value);
+    }
+
+    @Test
+    public void testConvertRequiredUnsupported() {
+        try {
+            BaseTypeConverter.convertRequired(new Date(), Byte[].class);
+            fail("Expected UnsupportedClassTypeError");
+        } catch (UnsupportedClassTypeError e) {
+            assertTrue(e.getMessage().contains("Unsupported"));
+        }
+    }
+
+    @Test
+    public void testCanConvert() {
+        assertTrue(BaseTypeConverter.canConvert(String.class, Integer.class));
+        assertTrue(BaseTypeConverter.canConvert(Double.class, BigDecimal.class));
+        assertTrue(BaseTypeConverter.canConvert(String.class, Status.class));
+        assertFalse(BaseTypeConverter.canConvert(Void.class, Date.class));
     }
 }
