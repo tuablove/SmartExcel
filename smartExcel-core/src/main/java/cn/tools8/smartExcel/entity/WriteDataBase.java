@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
  */
 public class WriteDataBase extends ArrayList<DynamicColumn> implements Serializable {
     private volatile Map<String, DynamicColumn> dynamicColumnMap = null;
+    private volatile Map<String, Field> declaredFieldMap = null;
     /**
      * 子对象
      */
@@ -109,8 +110,7 @@ public class WriteDataBase extends ArrayList<DynamicColumn> implements Serializa
             return null;
         }
         try {
-            Field field = this.getClass().getDeclaredField(key);
-            field.setAccessible(true);
+            Field field = getDeclaredField(key);
             return field.get(this);
         } catch (NoSuchFieldException ignore) {
             return getDynamicColumnValue(key);
@@ -131,7 +131,7 @@ public class WriteDataBase extends ArrayList<DynamicColumn> implements Serializa
             return true;
         } else {
             try {
-                this.getClass().getDeclaredField(key);
+                getDeclaredField(key);
                 return true;
             } catch (NoSuchFieldException ignore) {
                 return false;
@@ -233,8 +233,7 @@ public class WriteDataBase extends ArrayList<DynamicColumn> implements Serializa
             dynamicColumn.setValue(value);
         } else {
             try {
-                Field declaredField = this.getClass().getDeclaredField(key);
-                declaredField.setAccessible(true);
+                Field declaredField = getDeclaredField(key);
                 declaredField.set(this, value);
             } catch (Exception ignore) {
 
@@ -262,5 +261,23 @@ public class WriteDataBase extends ArrayList<DynamicColumn> implements Serializa
                 ", writeDateChildren=" + writeDateChildren +
                 ", modCount=" + modCount +
                 "} " + super.toString();
+    }
+
+    private Field getDeclaredField(String key) throws NoSuchFieldException {
+        if (declaredFieldMap == null) {
+            synchronized (this) {
+                if (declaredFieldMap == null) {
+                    declaredFieldMap = new HashMap<>();
+                }
+            }
+        }
+        Field cachedField = declaredFieldMap.get(key);
+        if (cachedField != null) {
+            return cachedField;
+        }
+        Field field = this.getClass().getDeclaredField(key);
+        field.setAccessible(true);
+        declaredFieldMap.put(key, field);
+        return field;
     }
 }

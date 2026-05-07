@@ -89,11 +89,12 @@ public class ExcelWriter<T> extends AbstractExcel {
                         config.getMaxChildrenCount(), config.getChildTitleCellStyleHandler(), autoSizeColumnManager);
 
                 sheet.createFreezePane(0,maxTitleRowCount);
-                int pageSize = Math.min(dataList.size() - i * maxRows, maxRows);
+                int startIndex = i * maxRows;
+                int pageSize = Math.min(dataList.size() - startIndex, maxRows);
                 ExcelMergeManager mergeManager = new ExcelMergeManager(config, mainDataFields, childDataFields, maxTitleRowCount);
                 for (int rowIndex = 0; rowIndex < pageSize; rowIndex++) {
                     Row row = sheet.createRow(rowIndex + maxTitleRowCount);
-                    Object dataBase = dataList.get(i * pageSize + rowIndex);
+                    Object dataBase = dataList.get(startIndex + rowIndex);
                     for (int column = 0; column < mainDataFields.size(); column++) {
                         WriteDataFieldDefinition dataField = mainDataFields.get(column);
                         Cell cell = row.createCell(column);
@@ -164,14 +165,15 @@ public class ExcelWriter<T> extends AbstractExcel {
      */
     private void writeChildren(List<WriteDataFieldDefinition> mainDataFields, List<WriteDataFieldDefinition> childDataFields, int maxChildrenCount, AutoSizeColumnManager autoSizeColumnManager, Row row, Object dataBase) {
         if (dataBase instanceof WriteDataBase) {
+            List<? extends WriteDataBase> children = ((WriteDataBase) dataBase).getWriteDateChildren();
+            int size = children == null ? 0 : children.size();
             for (int count = 0; count < maxChildrenCount; count++) {
                 for (int column = 0; column < childDataFields.size(); column++) {
                     WriteDataFieldDefinition dataField = childDataFields.get(column);
                     int columnNum = column + mainDataFields.size() + count * childDataFields.size();
                     Cell cell = row.createCell(columnNum);
-                    int size = ((WriteDataBase) dataBase).getWriteDateChildren() == null ? 0 : ((WriteDataBase) dataBase).getWriteDateChildren().size();
                     if (count < size) {
-                        WriteDataBase subDataBase = ((WriteDataBase) dataBase).getWriteDateChildren().get(count);
+                        WriteDataBase subDataBase = children.get(count);
                         Object originValue = null;
                         if (subDataBase != null) {
                             originValue = subDataBase.getFieldValue(dataField.getKey());
@@ -247,7 +249,7 @@ public class ExcelWriter<T> extends AbstractExcel {
             }
         }
         if (cellStyle == null) {
-            if (cellValue != null && cellValue.getClass().isAssignableFrom(Date.class)) {
+            if (cellValue instanceof Date) {
                 cellStyle = generateDataFormatCellStyle("yyyy-MM-dd HH:mm:ss", defaultCellStyle);
             }
             if (cellStyle == null) {
@@ -320,12 +322,7 @@ public class ExcelWriter<T> extends AbstractExcel {
                 if (cellStyle == null) {
                     cellStyle = genericCellStyleManager.getCellStyle(GenericStyleTypeEnum.TITLE.getType());
                 }
-                if (expressionManager.hasExpression(titleName)) {
-                    Object parseName = expressionManager.parse(titleName);
-                    if (parseName != null) {
-                        titleName = parseName.toString();
-                    }
-                }
+                titleName = parseTitleName(titleName);
                 cell.setCellValue(titleName);
                 cell.setCellStyle(cellStyle);
                 if (i == 0) {
@@ -358,12 +355,7 @@ public class ExcelWriter<T> extends AbstractExcel {
                         int realColumn = column + mainDataFields.size() + count * childDataFields.size();
                         Cell cell = sheet.getRow(row).createCell(realColumn);
                         CellStyle cellStyle = resolveChildTitleCellStyle(childTitleCellStyleHandler, count, titleName, realColumn, cell);
-                        if (expressionManager.hasExpression(titleName)) {
-                            Object parseName = expressionManager.parse(titleName);
-                            if (parseName != null) {
-                                titleName = parseName.toString();
-                            }
-                        }
+                        titleName = parseTitleName(titleName);
                         cell.setCellValue(titleName);
                         cell.setCellStyle(cellStyle);
                         if (i == 0) {
@@ -378,6 +370,14 @@ public class ExcelWriter<T> extends AbstractExcel {
             ExcelMergeUtils.mergeRange(sheet, new CellRangeAddress(0, maxTitleRowCount - 1, 0, lastColumn));
         }
         return maxChildrenCount;
+    }
+
+    private String parseTitleName(String titleName) {
+        if (!expressionManager.hasExpression(titleName)) {
+            return titleName;
+        }
+        Object parseName = expressionManager.parse(titleName);
+        return parseName == null ? titleName : parseName.toString();
     }
 
     private CellStyle resolveChildTitleCellStyle(IWriteChildTitleCellStyleHandler childTitleCellStyleHandler, int childIndex,

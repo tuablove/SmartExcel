@@ -64,13 +64,22 @@ public class AbstractExcelReader extends AbstractExcel {
                 Map<String, Short> titleColumnMap = getTitle2ColumnIndexMap(titleRow, minColIx, maxColIx);
                 Map<Short, ImportField> columnFieldMap = getColumn2ClassFieldMap(clazz,validateMessageFields, titleColumnMap,config.getGroups());
                 Map<String, ImportField> fieldMap = columnFieldMap.values().stream().collect(Collectors.toMap(ImportField::getName, item -> item));
+                PropertyMessageInterpolator propertyInterpolator = null;
+                if (config.isValidate()) {
+                    propertyInterpolator = new PropertyMessageInterpolator(new PropertyMessageInterpolator.PropertyNameObtainHandler() {
+                        @Override
+                        public String obtain(String property) {
+                            ImportField importField = fieldMap.get(property);
+                            return importField == null ? "" : importField.getColumnName();
+                        }
+                    });
+                }
                 for (int rowIndex = sheetConfig.getDataBeginRowIndex(); rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                     Row dataRow = sheet.getRow(rowIndex);
                     if (dataRow == null) {
                         continue;
                     }
                     Object entity = null;
-                    entity = clazz.newInstance();
                     boolean filled = false;
                     for (short column = minColIx; column < maxColIx; column++) {
                         ImportField importField = columnFieldMap.get(column);
@@ -86,7 +95,7 @@ public class AbstractExcelReader extends AbstractExcel {
                         Object cellValue = CellUtils.getCellValue(cell);
                         Object value = null;
                         if (converter != null) {
-                            value = converter.convert(cell, cellValue, cellValue.getClass());
+                            value = converter.convert(cell, cellValue, cellValue == null ? Object.class : cellValue.getClass());
                         } else {
                             if (cellValue != null && !cellValue.equals("")) {
                                 try {
@@ -97,12 +106,15 @@ public class AbstractExcelReader extends AbstractExcel {
                             }
                         }
                         if (value != null) {
+                            if (entity == null) {
+                                entity = clazz.newInstance();
+                            }
                             field.set(entity, value);
                             filled = true;
                         }
                     }
                     if (filled && (config.getRowIgnoreHandler() == null || !config.getRowIgnoreHandler().ignore(sheetIndex, rowIndex, entity))) {
-                        validateEntity(config,validateMessageFields, sheetIndex, fieldMap, rowIndex, entity);
+                        validateEntity(config,validateMessageFields, propertyInterpolator, sheetIndex, fieldMap, rowIndex, entity);
                         if(config.getReadRowHandler()!=null) {
                             config.getReadRowHandler().onData(sheetIndex, rowIndex, dataRow,dataList, (T) entity);
                         }
@@ -124,19 +136,9 @@ public class AbstractExcelReader extends AbstractExcel {
      * @param rowIndex
      * @param entity
      */
-    protected void validateEntity(ExcelReaderConfig config,List<Field> validateMessageFields, Integer sheetIndex, Map<String, ImportField> fieldMap, int rowIndex, Object entity) throws IllegalAccessException {
+    protected void validateEntity(ExcelReaderConfig config,List<Field> validateMessageFields, PropertyMessageInterpolator propertyInterpolator, Integer sheetIndex, Map<String, ImportField> fieldMap, int rowIndex, Object entity) throws IllegalAccessException {
         if (config.isValidate()) {
             Map<String, List<String>> errorMessage = null;
-            PropertyMessageInterpolator propertyInterpolator = new PropertyMessageInterpolator(new PropertyMessageInterpolator.PropertyNameObtainHandler() {
-                @Override
-                public String obtain(String property) {
-                    ImportField importField = fieldMap.get(property);
-                    if (importField != null) {
-                        return importField.getColumnName();
-                    }
-                    return "";
-                }
-            });
             if (config.getValidateGroups() == null) {
                 errorMessage = ValidatorUtil.validate(entity, propertyInterpolator, Default.class);
             } else {
